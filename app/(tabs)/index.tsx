@@ -32,7 +32,7 @@ export default function HomeScreen() {
 
   return (
     <View style={globalStyles.container}>
-      <GlobalHeader title="Azm" showSettings />
+      <GlobalHeader title="Hadaf" showSettings />
       <PresentationSwitcher activeMode={activeMode} onModeChange={setActiveMode} />
       <FilterBar
         filterOptions={[{ id: 'all', label: 'All Categories' }]}

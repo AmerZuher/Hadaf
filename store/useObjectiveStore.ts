@@ -116,7 +116,7 @@ export const useObjectiveStore = create<ObjectiveState>()(
       },
     }),
     {
-      name: 'azm-objective-storage',
+      name: 'hadaf-objective-storage',
       storage: createJSONStorage(() => zustandStorage),
     }
   )

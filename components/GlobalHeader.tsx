@@ -14,7 +14,7 @@ interface GlobalHeaderProps {
 }
 
 export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
-  title = 'Azm',
+  title = 'Hadaf',
   showBack = false,
   showSettings = false,
   rightIcon,

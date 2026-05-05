@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "AZM",
-    "slug": "AZM",
+    "name": "Hadaf",
+    "slug": "hadaf",
     "version": "1.0.0",
-    "scheme": "azm",
+    "scheme": "hadaf",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.zerox9.AZM"
+      "package": "com.zerox9.hadaf"
     },
     "web": {
       "favicon": "./assets/favicon.png"

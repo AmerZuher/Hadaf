@@ -18,7 +18,7 @@ export default function BackupScreen() {
     try {
       const data = { objectives, todos };
       // @ts-ignore - Expo types issue in current SDK version
-      const fileUri = `${FileSystem.documentDirectory}azm_backup.json`;
+      const fileUri = `${FileSystem.documentDirectory}hadaf_backup.json`;
       await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(data, null, 2));
       Alert.alert('Success', `Backup saved to ${fileUri}`);
     } catch (e) {

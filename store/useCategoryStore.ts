@@ -48,7 +48,7 @@ export const useCategoryStore = create<CategoryState>()(
       },
     }),
     {
-      name: 'azm-category-storage',
+      name: 'hadaf-category-storage',
       storage: createJSONStorage(() => zustandStorage),
     }
   )

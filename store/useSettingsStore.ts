@@ -83,7 +83,7 @@ export const useSettingsStore = create<SettingsState>()(
       },
     }),
     {
-      name: 'azm-settings-storage',
+      name: 'hadaf-settings-storage',
       storage: createJSONStorage(() => zustandStorage),
     }
   )

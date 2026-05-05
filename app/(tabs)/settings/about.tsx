@@ -14,11 +14,11 @@ export default function AboutScreen() {
       <GlobalHeader title="About" showBack />
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Text style={[globalStyles.heading, { fontSize: 48 }]}>Azm</Text>
+          <Text style={[globalStyles.heading, { fontSize: 48 }]}>Hadaf</Text>
           <Text style={globalStyles.text}>Version 1.0.0</Text>
         </View>
         <Text style={[globalStyles.text, styles.desc]}>
-          Azm is a sleek, modern mobile productivity app designed to keep your focus sharp and your tasks moving.
+          Hadaf is a sleek, modern mobile productivity app designed to keep your focus sharp and your tasks moving.
         </Text>
       </View>
     </View>
