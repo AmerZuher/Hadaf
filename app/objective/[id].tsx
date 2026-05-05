@@ -30,6 +30,8 @@ export default function ObjectiveScreen() {
       addTodo(id, {
         name: newTodoName,
         status: 'pending',
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
       });
       setNewTodoName('');
       setIsModalVisible(false);
@@ -58,12 +60,12 @@ export default function ObjectiveScreen() {
         renderItem={({ item }) => (
           <TodoCard
             item={item}
-            drag={() => {}}
+            drag={() => { }}
             isActive={false}
             onStatusChange={(tid, status) => updateTodo(tid, { status })}
             onArchive={(tid) => archiveTodo(tid)}
             onDelete={(tid) => deleteTodo(tid)}
-            onNotify={() => {}}
+            onNotify={() => { }}
           />
         )}
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
@@ -88,12 +90,12 @@ export default function ObjectiveScreen() {
           <View style={{ opacity: 0.6 }}>
             <TodoCard
               item={item}
-              drag={() => {}}
+              drag={() => { }}
               isActive={false}
               onStatusChange={(tid, status) => updateTodo(tid, { status })}
               onArchive={(tid) => archiveTodo(tid)}
               onDelete={(tid) => deleteTodo(tid)}
-              onNotify={() => {}}
+              onNotify={() => { }}
             />
           </View>
         )}
@@ -105,7 +107,7 @@ export default function ObjectiveScreen() {
   return (
     <View style={globalStyles.container}>
       <GlobalHeader title={objective.name} showBack />
-      
+
       <View style={styles.tabContainer}>
         <TouchableOpacity style={[styles.tab, activeTab === 'todos' && { borderBottomColor: theme.colors.text }]} onPress={() => setActiveTab('todos')}>
           <Text style={[styles.tabText, { color: theme.colors.text, opacity: activeTab === 'todos' ? 1 : 0.5 }]}>To-Dos</Text>
