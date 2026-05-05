@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import { Syne_400Regular, Syne_500Medium, Syne_600SemiBold, Syne_700Bold } from '@expo-google-fonts/syne';
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { StatusBar } from 'expo-status-bar';
+import Toast from 'react-native-toast-message';
 import { useSettingsStore } from '../store/useSettingsStore';
 
 export default function RootLayout() {
@@ -28,8 +29,8 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="objective/[id]" options={{ presentation: 'card' }} />
       </Stack>
+      <Toast />
     </>
   );
 }

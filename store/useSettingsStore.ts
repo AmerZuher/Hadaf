@@ -4,7 +4,7 @@ import { zustandStorage } from './mmkv';
 import { ThemeConfig, ThemeColors } from './types';
 import { I18nManager } from 'react-native';
 
-const defaultThemes: ThemeConfig[] = [
+export const defaultThemes: ThemeConfig[] = [
   {
     id: 'midnight',
     name: 'Midnight',
@@ -29,6 +29,32 @@ const defaultThemes: ThemeConfig[] = [
       inProgress: '#d97706',
       pending: '#e11d48',
       text: '#1c1917',
+    },
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    colors: {
+      backgroundMain: '#082f49',
+      cardStart: '#0c4a6e',
+      cardEnd: '#075985',
+      done: '#10b981',
+      inProgress: '#facc15',
+      pending: '#f43f5e',
+      text: '#e0f2fe',
+    },
+  },
+  {
+    id: 'forest',
+    name: 'Forest',
+    colors: {
+      backgroundMain: '#064e3b',
+      cardStart: '#065f46',
+      cardEnd: '#047857',
+      done: '#34d399',
+      inProgress: '#fcd34d',
+      pending: '#f87171',
+      text: '#ecfdf5',
     },
   },
 ];

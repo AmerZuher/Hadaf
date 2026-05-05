@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Todo, Status } from '../store/types';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { getGlobalStyles } from '../theme/theme';
@@ -14,6 +15,7 @@ interface TodoCardProps {
   onArchive: (id: string) => void;
   onDelete: (id: string) => void;
   onNotify: (id: string) => void;
+  onEdit: (id: string) => void;
 }
 
 const ACTION_WIDTH = 180; // 3 actions * 60 width
@@ -26,6 +28,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({
   onArchive,
   onDelete,
   onNotify,
+  onEdit,
 }) => {
   const { getActiveTheme } = useSettingsStore();
   const theme = getActiveTheme();
@@ -40,19 +43,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.actionsContainer}>
-        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.colors.cardStart }]} onPress={() => onArchive(item.id)}>
-          <MaterialCommunityIcons name="archive" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.colors.cardStart }]} onPress={() => onNotify(item.id)}>
-          <MaterialCommunityIcons name="bell" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.colors.pending }]} onPress={() => onDelete(item.id)}>
-          <MaterialCommunityIcons name="trash-can" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-          <View
+      <View
         style={[
           globalStyles.card,
           styles.cardOverride,
@@ -63,6 +54,24 @@ export const TodoCard: React.FC<TodoCardProps> = ({
         <TouchableOpacity onLongPress={drag} delayLongPress={200} activeOpacity={1}>
           <View style={styles.header}>
             <Text style={[globalStyles.subHeading, { flex: 1, fontSize: 16 }]}>{item.name}</Text>
+            <View style={styles.headerActions}>
+              <TouchableOpacity onPress={() => onNotify(item.id)} style={styles.headerBtn}>
+                <MaterialCommunityIcons name="bell-outline" size={18} color={theme.colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => onArchive(item.id)} style={styles.headerBtn}>
+                <MaterialCommunityIcons 
+                  name={item.isArchived ? "backup-restore" : "archive-outline"} 
+                  size={18} 
+                  color={theme.colors.text} 
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => onEdit(item.id)} style={styles.headerBtn}>
+                <MaterialCommunityIcons name="pencil-outline" size={18} color={theme.colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => onDelete(item.id)} style={styles.headerBtn}>
+                <MaterialCommunityIcons name="trash-can-outline" size={18} color={theme.colors.pending} />
+              </TouchableOpacity>
+            </View>
           </View>
           
           <View style={styles.detailsRow}>
@@ -98,13 +107,13 @@ export const TodoCard: React.FC<TodoCardProps> = ({
           )}
 
           <View style={styles.statusPicker}>
-            <TouchableOpacity onPress={() => onStatusChange(item.id, 'done')} style={[styles.statusBtn, item.status === 'done' && { backgroundColor: theme.colors.done }]}>
+            <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'done'); }} style={[styles.statusBtn, item.status === 'done' && { backgroundColor: theme.colors.done }]}>
               <Text style={styles.statusBtnText}>Done</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => onStatusChange(item.id, 'in-progress')} style={[styles.statusBtn, item.status === 'in-progress' && { backgroundColor: theme.colors.inProgress }]}>
+            <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'in-progress'); }} style={[styles.statusBtn, item.status === 'in-progress' && { backgroundColor: theme.colors.inProgress }]}>
               <Text style={styles.statusBtnText}>In Progress</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => onStatusChange(item.id, 'pending')} style={[styles.statusBtn, item.status === 'pending' && { backgroundColor: theme.colors.pending }]}>
+            <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'pending'); }} style={[styles.statusBtn, item.status === 'pending' && { backgroundColor: theme.colors.pending }]}>
               <Text style={styles.statusBtnText}>Pending</Text>
             </TouchableOpacity>
           </View>
@@ -180,19 +189,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'Syne_600SemiBold',
   },
-  actionsContainer: {
-    ...StyleSheet.absoluteFillObject,
+  headerActions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    gap: 12,
     alignItems: 'center',
-    paddingRight: 10,
   },
-  actionBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
+  headerBtn: {
+    padding: 4,
+    opacity: 0.6,
   },
 });

@@ -8,34 +8,132 @@ import { getGlobalStyles } from '../../theme/theme';
 import { GlobalHeader } from '../../components/GlobalHeader';
 import { TodoCard } from '../../components/TodoCard';
 import { FilterBar } from '../../components/FilterBar';
+import { NotificationModal } from '../../components/NotificationModal';
+import { scheduleTodoNotification, cancelNotification } from '../../utils/notifications';
+import { NotificationConfig } from '../../store/types';
+import Toast from 'react-native-toast-message';
+import { todoSchema, TodoFormData } from '../../utils/validation';
 
 type Tab = 'todos' | 'kanban' | 'archived';
 
-export default function ObjectiveScreen() {
+const ObjectiveScreen = () => {
   const { id } = useLocalSearchParams();
   const { getActiveTheme } = useSettingsStore();
-  const { objectives, todos, updateTodo, archiveTodo, deleteTodo, addTodo } = useObjectiveStore();
+  const { objectives, todos, updateTodo, archiveTodo, restoreTodo, deleteTodo, addTodo } = useObjectiveStore();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
   const [activeTab, setActiveTab] = useState<Tab>('todos');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [activeSort, setActiveSort] = useState('start');
+  const [activeSort, setActiveSort] = useState('start_desc');
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [newTodoName, setNewTodoName] = useState('');
+  const [formData, setFormData] = useState<TodoFormData>({ name: '', location: '', notes: '' });
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof TodoFormData, string>>>({});
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  
+  const [isNotificationModalVisible, setIsNotificationModalVisible] = useState(false);
+  const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
 
-  const handleCreateTodo = () => {
-    if (newTodoName.trim() && typeof id === 'string') {
+  const handleOpenNotification = (todoId: string) => {
+    setSelectedTodoId(todoId);
+    setIsNotificationModalVisible(true);
+  };
+
+  const handleSaveNotification = async (config: NotificationConfig) => {
+    if (!selectedTodoId) return;
+    const todo = todos.find((t) => t.id === selectedTodoId);
+    if (!todo) return;
+
+    let finalConfig = { ...config };
+
+    if (!finalConfig.isActive && todo.notificationConfig?.notificationId) {
+      await cancelNotification(todo.notificationConfig.notificationId);
+      finalConfig.notificationId = undefined;
+    } else if (finalConfig.isActive) {
+      const identifier = await scheduleTodoNotification(todo.name, finalConfig);
+      finalConfig.notificationId = identifier;
+    }
+
+    updateTodo(selectedTodoId, { notificationConfig: finalConfig });
+    setIsNotificationModalVisible(false);
+    setSelectedTodoId(null);
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditingTodoId(null);
+    setFormData({ name: '', location: '', notes: '' });
+    setFormErrors({});
+    setIsModalVisible(true);
+  };
+
+  const handleOpenEditModal = (todoId: string) => {
+    const todo = todos.find((t) => t.id === todoId);
+    if (todo) {
+      setEditingTodoId(todoId);
+      setFormData({
+        name: todo.name,
+        location: todo.location || '',
+        notes: todo.notes || '',
+      });
+      setFormErrors({});
+      setIsModalVisible(true);
+    }
+  };
+
+  const handleSaveTodo = () => {
+    const result = todoSchema.safeParse(formData);
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
+
+    const validData = result.data;
+    if (typeof id !== 'string') return;
+
+    const objectiveTodosCheck = todos.filter((t) => t.objectiveId === id);
+    const isDuplicate = objectiveTodosCheck.some(
+      (t) => t.name.toLowerCase() === validData.name.trim().toLowerCase() && t.id !== editingTodoId
+    );
+
+    if (isDuplicate) {
+      Toast.show({
+        type: 'error',
+        text1: 'Duplicate Task',
+        text2: 'A task with this name already exists.',
+      });
+      return;
+    }
+
+    if (editingTodoId) {
+      updateTodo(editingTodoId, { 
+        name: validData.name.trim(),
+        location: validData.location?.trim() || undefined,
+        notes: validData.notes?.trim() || undefined,
+      });
+    } else {
       addTodo(id, {
-        name: newTodoName,
+        name: validData.name.trim(),
+        location: validData.location?.trim() || undefined,
+        notes: validData.notes?.trim() || undefined,
         status: 'pending',
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
       });
-      setNewTodoName('');
-      setIsModalVisible(false);
     }
+    
+    setFormData({ name: '', location: '', notes: '' });
+    setFormErrors({});
+    setIsModalVisible(true); // Close handled below correctly
+    setIsModalVisible(false);
+    setEditingTodoId(null);
   };
 
   const objective = objectives.find((o) => o.id === id);
@@ -43,6 +141,23 @@ export default function ObjectiveScreen() {
 
   const activeTodos = objectiveTodos.filter((t) => !t.isArchived);
   const archivedTodos = objectiveTodos.filter((t) => t.isArchived);
+
+  // Apply filtering and sorting
+  let displayedTodos = [...activeTodos];
+  if (activeFilter !== 'all') {
+    displayedTodos = displayedTodos.filter(t => t.status === activeFilter);
+  }
+  
+  displayedTodos.sort((a, b) => {
+    if (activeSort === 'name') {
+      return a.name.localeCompare(b.name);
+    } else if (activeSort === 'start_asc') {
+      return new Date(a.startDate || 0).getTime() - new Date(b.startDate || 0).getTime();
+    } else {
+      // start_desc
+      return new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime();
+    }
+  });
 
   if (!objective) {
     return (
@@ -55,7 +170,7 @@ export default function ObjectiveScreen() {
   const renderTodos = () => {
     return (
       <FlatList
-        data={activeTodos}
+        data={displayedTodos}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TodoCard
@@ -65,7 +180,8 @@ export default function ObjectiveScreen() {
             onStatusChange={(tid, status) => updateTodo(tid, { status })}
             onArchive={(tid) => archiveTodo(tid)}
             onDelete={(tid) => deleteTodo(tid)}
-            onNotify={() => { }}
+            onNotify={() => handleOpenNotification(item.id)}
+            onEdit={() => handleOpenEditModal(item.id)}
           />
         )}
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
@@ -93,9 +209,10 @@ export default function ObjectiveScreen() {
               drag={() => { }}
               isActive={false}
               onStatusChange={(tid, status) => updateTodo(tid, { status })}
-              onArchive={(tid) => archiveTodo(tid)}
+              onArchive={(tid) => restoreTodo(tid)}
               onDelete={(tid) => deleteTodo(tid)}
-              onNotify={() => { }}
+              onNotify={() => handleOpenNotification(item.id)}
+              onEdit={() => handleOpenEditModal(item.id)}
             />
           </View>
         )}
@@ -122,8 +239,17 @@ export default function ObjectiveScreen() {
 
       {activeTab === 'todos' && (
         <FilterBar
-          filterOptions={[{ id: 'all', label: 'All Status' }]}
-          sortOptions={[{ id: 'start', label: 'Start Date' }]}
+          filterOptions={[
+            { id: 'all', label: 'All' },
+            { id: 'pending', label: 'Pending' },
+            { id: 'in-progress', label: 'In Progress' },
+            { id: 'done', label: 'Done' }
+          ]}
+          sortOptions={[
+            { id: 'start_desc', label: 'Newest First' },
+            { id: 'start_asc', label: 'Oldest First' },
+            { id: 'name', label: 'Name (A-Z)' }
+          ]}
           activeFilter={activeFilter}
           activeSort={activeSort}
           onFilterSelect={setActiveFilter}
@@ -137,7 +263,7 @@ export default function ObjectiveScreen() {
 
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: theme.colors.text }]}
-        onPress={() => setIsModalVisible(true)}
+        onPress={handleOpenCreateModal}
       >
         <MaterialCommunityIcons name="plus" size={32} color={theme.colors.backgroundMain} />
       </TouchableOpacity>
@@ -154,33 +280,66 @@ export default function ObjectiveScreen() {
             style={[styles.modalContent, { backgroundColor: theme.colors.cardStart }]}
           >
             <View style={styles.modalHeader}>
-              <Text style={globalStyles.subHeading}>New To-Do</Text>
+              <Text style={globalStyles.subHeading}>{editingTodoId ? 'Edit To-Do' : 'New To-Do'}</Text>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                 <MaterialCommunityIcons name="close" size={24} color={theme.colors.text} />
               </TouchableOpacity>
             </View>
 
             <TextInput
-              style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)' }]}
+              style={[styles.input, formErrors.name && styles.inputError, { color: theme.colors.text, borderColor: formErrors.name ? theme.colors.pending : 'rgba(255,255,255,0.1)' }]}
               placeholder="What needs to be done?"
               placeholderTextColor="rgba(255,255,255,0.4)"
-              value={newTodoName}
-              onChangeText={setNewTodoName}
+              value={formData.name}
+              onChangeText={(text) => {
+                setFormData({ ...formData, name: text });
+                if (formErrors.name) setFormErrors({ ...formErrors, name: undefined });
+              }}
               autoFocus
+            />
+            {formErrors.name && <Text style={styles.errorText}>{formErrors.name}</Text>}
+
+            <TextInput
+              style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)' }]}
+              placeholder="Location (Optional)"
+              placeholderTextColor="rgba(255,255,255,0.4)"
+              value={formData.location}
+              onChangeText={(text) => setFormData({ ...formData, location: text })}
+            />
+
+            <TextInput
+              style={[styles.input, styles.textArea, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)' }]}
+              placeholder="Notes (Optional)"
+              placeholderTextColor="rgba(255,255,255,0.4)"
+              value={formData.notes}
+              onChangeText={(text) => setFormData({ ...formData, notes: text })}
+              multiline
+              numberOfLines={3}
             />
 
             <TouchableOpacity
               style={[styles.createBtn, { backgroundColor: theme.colors.text }]}
-              onPress={handleCreateTodo}
+              onPress={handleSaveTodo}
             >
-              <Text style={[styles.createBtnText, { color: theme.colors.backgroundMain }]}>Add To-Do</Text>
+              <Text style={[styles.createBtnText, { color: theme.colors.backgroundMain }]}>
+                {editingTodoId ? 'Save Changes' : 'Add To-Do'}
+              </Text>
             </TouchableOpacity>
           </KeyboardAvoidingView>
         </View>
       </Modal>
+
+      <NotificationModal
+        visible={isNotificationModalVisible}
+        onClose={() => setIsNotificationModalVisible(false)}
+        onSave={handleSaveNotification}
+        initialConfig={todos.find((t) => t.id === selectedTodoId)?.notificationConfig}
+      />
     </View>
   );
-}
+};
+
+export default ObjectiveScreen;
 
 const styles = StyleSheet.create({
   tabContainer: {
@@ -238,14 +397,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
-    marginBottom: 24,
+    marginBottom: 16,
     backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  textArea: {
+    height: 100,
+    paddingTop: 16,
+    textAlignVertical: 'top',
+  },
+  inputError: {
+    borderWidth: 2,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 12,
+    marginTop: -12,
+    marginBottom: 16,
+    marginLeft: 4,
   },
   createBtn: {
     height: 60,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 8,
   },
   createBtnText: {
     fontFamily: 'Syne_600SemiBold',

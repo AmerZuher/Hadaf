@@ -8,6 +8,16 @@ export interface Category {
   isCustom: boolean;
 }
 
+export type RepeatConfig = 'none' | 'daily' | 'weekly';
+
+export interface NotificationConfig {
+  isActive: boolean;
+  datetime: string | null;
+  repeat: RepeatConfig;
+  daysOfWeek?: number[];
+  notificationId?: string;
+}
+
 export interface Todo {
   id: string;
   objectiveId: string;
@@ -19,6 +29,7 @@ export interface Todo {
   notes?: string;
   isArchived: boolean;
   order: number;
+  notificationConfig?: NotificationConfig;
 }
 
 export interface Objective {
