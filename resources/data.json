@@ -1,0 +1,105 @@
+{
+    "objectives": [
+        {
+            "id": "obj_project_1",
+            "name": "Global Product Launch 2026",
+            "categoryId": "project",
+            "createdAt": "2026-01-10T09:00:00Z"
+        },
+        {
+            "id": "obj_health_1",
+            "name": "Marathon Training Program",
+            "categoryId": "health",
+            "createdAt": "2026-02-15T10:30:00Z"
+        },
+        {
+            "id": "obj_work_1",
+            "name": "Q3 Revenue Strategy",
+            "categoryId": "work",
+            "createdAt": "2026-03-01T08:00:00Z"
+        },
+        {
+            "id": "obj_home_1",
+            "name": "Smart Home Renovation",
+            "categoryId": "home",
+            "createdAt": "2026-04-20T14:00:00Z"
+        }
+    ],
+    "todos": [
+        {
+            "id": "t1",
+            "objectiveId": "obj_project_1",
+            "name": "Finalize UI Style Guide",
+            "status": "done",
+            "startDate": "2026-05-01T09:00:00Z",
+            "endDate": "2026-05-05T17:00:00Z",
+            "notes": "Ensure cosmic theme compliance.",
+            "isArchived": false,
+            "order": 0
+        },
+        {
+            "id": "t2",
+            "objectiveId": "obj_project_1",
+            "name": "Develop Core Architecture",
+            "status": "in-progress",
+            "startDate": "2026-05-06T09:00:00Z",
+            "endDate": "2026-05-20T17:00:00Z",
+            "notes": "Focus on state management efficiency.",
+            "isArchived": false,
+            "order": 1
+        },
+        {
+            "id": "t3",
+            "objectiveId": "obj_project_1",
+            "name": "QA & Beta Testing",
+            "status": "pending",
+            "startDate": "2026-05-21T09:00:00Z",
+            "endDate": "2026-06-01T17:00:00Z",
+            "isArchived": false,
+            "order": 2
+        },
+        {
+            "id": "t4",
+            "objectiveId": "obj_health_1",
+            "name": "Buy New Running Shoes",
+            "status": "done",
+            "startDate": "2026-05-02T10:00:00Z",
+            "endDate": "2026-05-02T12:00:00Z",
+            "isArchived": false,
+            "order": 0
+        },
+        {
+            "id": "t5",
+            "objectiveId": "obj_health_1",
+            "name": "5km Morning Run",
+            "status": "in-progress",
+            "startDate": "2026-05-05T06:00:00Z",
+            "endDate": "2026-05-05T07:00:00Z",
+            "notes": "Keep heart rate below 150bpm.",
+            "isArchived": false,
+            "order": 1
+        },
+        {
+            "id": "t6",
+            "objectiveId": "obj_work_1",
+            "name": "Draft Market Analysis",
+            "status": "in-progress",
+            "startDate": "2026-05-04T09:00:00Z",
+            "endDate": "2026-05-10T18:00:00Z",
+            "notes": "Analyze competitor Q1 filings.",
+            "isArchived": false,
+            "order": 0
+        },
+        {
+            "id": "t7",
+            "objectiveId": "obj_home_1",
+            "name": "Install Smart Lighting",
+            "status": "pending",
+            "startDate": "2026-05-10T10:00:00Z",
+            "endDate": "2026-05-11T20:00:00Z",
+            "notes": "Sync with central hub.",
+            "isArchived": false,
+            "order": 0
+        }
+    ]
+}

@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSettingsStore } from '../store/useSettingsStore';
 
-export type PresentationMode = 'cards' | 'kanban' | 'timeline' | 'compact' | 'focus';
+export type PresentationMode = 'cards' | 'grid' | 'minimal';
 
 interface PresentationSwitcherProps {
   activeMode: PresentationMode;
@@ -12,10 +12,8 @@ interface PresentationSwitcherProps {
 
 const modes: { id: PresentationMode; icon: keyof typeof MaterialCommunityIcons.glyphMap }[] = [
   { id: 'cards', icon: 'view-agenda-outline' },
-  { id: 'kanban', icon: 'view-column-outline' },
-  { id: 'timeline', icon: 'chart-gantt' },
-  { id: 'compact', icon: 'format-list-bulleted' },
-  { id: 'focus', icon: 'fit-to-screen-outline' },
+  { id: 'grid', icon: 'view-grid-outline' },
+  { id: 'minimal', icon: 'format-list-bulleted' },
 ];
 
 export const PresentationSwitcher: React.FC<PresentationSwitcherProps> = ({ activeMode, onModeChange }) => {

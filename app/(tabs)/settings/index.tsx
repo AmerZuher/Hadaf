@@ -10,7 +10,7 @@ const settingsLinks = [
   { id: 'language', name: 'Language', icon: 'translate', path: '/(tabs)/settings/language' },
   { id: 'theme', name: 'Theme & Colors', icon: 'palette-swatch-outline', path: '/(tabs)/settings/theme' },
   { id: 'backup', name: 'Backup & Data', icon: 'database-outline', path: '/(tabs)/settings/backup' },
-  { id: 'about', name: 'About', icon: 'information-outline', path: '/(tabs)/settings/about' },
+  { id: 'about', name: 'About', icon: 'information-outline', path: '/about' },
 ];
 
 export default function SettingsScreen() {
@@ -21,7 +21,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={globalStyles.container}>
-      <GlobalHeader title="Settings" />
+      <GlobalHeader title="Settings" showBack />
       <ScrollView contentContainerStyle={styles.list}>
         {settingsLinks.map((link) => (
           <TouchableOpacity

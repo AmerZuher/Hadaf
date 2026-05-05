@@ -7,7 +7,6 @@ export const getGlobalStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.backgroundMain,
   },
   card: {
-    backgroundColor: colors.cardStart,
     borderRadius: 24,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.05)',

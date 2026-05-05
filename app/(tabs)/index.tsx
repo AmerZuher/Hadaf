@@ -8,6 +8,8 @@ import { GlobalHeader } from '../../components/GlobalHeader';
 import { PresentationSwitcher, PresentationMode } from '../../components/PresentationSwitcher';
 import { FilterBar } from '../../components/FilterBar';
 import { ObjectiveCard } from '../../components/ObjectiveCard';
+import { CategorySelector } from '../../components/CategorySelector';
+import { useCategoryStore } from '../../store/useCategoryStore';
 
 export default function HomeScreen() {
   const { getActiveTheme } = useSettingsStore();
@@ -21,33 +23,82 @@ export default function HomeScreen() {
   
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newObjectiveName, setNewObjectiveName] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('work'); // Default to first category
+
+  const { getAllCategories } = useCategoryStore();
+  const categories = getAllCategories();
 
   const handleCreateObjective = () => {
     if (newObjectiveName.trim()) {
-      addObjective(newObjectiveName, 'default');
+      addObjective(newObjectiveName, selectedCategoryId);
       setNewObjectiveName('');
+      setSelectedCategoryId('work');
       setIsModalVisible(false);
     }
   };
+
+  let displayedObjectives = [...objectives];
+  if (activeFilter !== 'all') {
+    displayedObjectives = displayedObjectives.filter(o => o.categoryId === activeFilter);
+  }
+  
+  displayedObjectives.sort((a, b) => {
+    if (activeSort === 'name') {
+      return a.name.localeCompare(b.name);
+    } else if (activeSort === 'start_asc') {
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    } else {
+      // start_desc
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+  });
 
   return (
     <View style={globalStyles.container}>
       <GlobalHeader title="Hadaf" showSettings />
       <PresentationSwitcher activeMode={activeMode} onModeChange={setActiveMode} />
       <FilterBar
-        filterOptions={[{ id: 'all', label: 'All Categories' }]}
-        sortOptions={[{ id: 'start', label: 'Start Date' }]}
+        filterOptions={[
+          { id: 'all', label: 'All Categories' },
+          ...categories.map(c => ({ id: c.id, label: c.name }))
+        ]}
+        sortOptions={[
+          { id: 'start_desc', label: 'Newest First' },
+          { id: 'start_asc', label: 'Oldest First' },
+          { id: 'name', label: 'Name (A-Z)' }
+        ]}
         activeFilter={activeFilter}
         activeSort={activeSort}
         onFilterSelect={setActiveFilter}
         onSortSelect={setActiveSort}
       />
-      <FlatList
-        data={objectives}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ObjectiveCard objective={item} />}
-        contentContainerStyle={styles.listContent}
-      />
+      {activeMode === 'grid' ? (
+        <FlatList
+          key="grid-list"
+          data={displayedObjectives}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={{ gap: 16 }}
+          renderItem={({ item }) => <ObjectiveCard objective={item} mode="grid" />}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : activeMode === 'minimal' ? (
+        <FlatList
+          key="minimal-list"
+          data={displayedObjectives}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ObjectiveCard objective={item} mode="minimal" />}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+        <FlatList
+          key="cards-list"
+          data={displayedObjectives}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ObjectiveCard objective={item} mode="full" />}
+          contentContainerStyle={styles.listContent}
+        />
+      )}
 
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: theme.colors.text }]}
@@ -81,6 +132,11 @@ export default function HomeScreen() {
               value={newObjectiveName}
               onChangeText={setNewObjectiveName}
               autoFocus
+            />
+
+            <CategorySelector 
+              selectedCategoryId={selectedCategoryId} 
+              onSelectCategory={setSelectedCategoryId} 
             />
 
             <TouchableOpacity

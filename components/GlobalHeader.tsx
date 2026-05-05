@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -34,7 +34,9 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
           </TouchableOpacity>
         )}
         {!showBack && (
-          <MaterialCommunityIcons name="lightning-bolt" size={28} color={theme.colors.text} style={{ marginRight: 8 }} />
+          <TouchableOpacity onPress={() => router.push('/about')} activeOpacity={0.7}>
+            <Image source={require('../assets/icon.png')} style={{ width: 32, height: 32, marginRight: 8, borderRadius: 8 }} />
+          </TouchableOpacity>
         )}
         <Text style={globalStyles.heading}>{title}</Text>
       </View>

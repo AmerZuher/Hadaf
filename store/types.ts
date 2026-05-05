@@ -47,6 +47,7 @@ export interface ThemeColors {
   cardStart: string;
   cardEnd: string;
   text: string;
+  accent: string;
 }
 
 export interface ThemeConfig {

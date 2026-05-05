@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Switch, Platform } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { NotificationConfig, RepeatConfig } from '../store/types';
 import { getGlobalStyles } from '../theme/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -50,8 +50,19 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   };
 
   const showMode = (currentMode: 'date' | 'time') => {
-    setShowPicker(true);
-    setPickerMode(currentMode);
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: date,
+        onChange: (event, selectedDate) => {
+          if (selectedDate) setDate(selectedDate);
+        },
+        mode: currentMode,
+        is24Hour: true,
+      });
+    } else {
+      setShowPicker(true);
+      setPickerMode(currentMode);
+    }
   };
 
   const onChange = (event: any, selectedDate?: Date) => {
@@ -95,13 +106,12 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
                 </TouchableOpacity>
               </View>
 
-              {showPicker && (
+              {Platform.OS === 'ios' && showPicker && (
                 <DateTimePicker
                   value={date}
                   mode={pickerMode}
                   is24Hour={true}
                   display="default"
-                  onValueChange={onChange}
                   onChange={onChange}
                 />
               )}

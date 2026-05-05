@@ -1,58 +1,196 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Dimensions } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { GlobalHeader } from '../../../components/GlobalHeader';
-import { useSettingsStore } from '../../../store/useSettingsStore';
+import { useSettingsStore, defaultThemes } from '../../../store/useSettingsStore';
 import { getGlobalStyles } from '../../../theme/theme';
+import { ThemeColors } from '../../../store/types';
+
+const { width } = Dimensions.get('window');
+
+const PRESET_COLORS = [
+  '#10b981', '#3b82f6', '#f59e0b', '#f43f5e', 
+  '#a855f7', '#64748b', '#000000', '#ffffff'
+];
+
+const THEME_ICONS: Record<string, string> = {
+  midnight: 'moon-waning-crescent',
+  nebula: 'flash',
+  aurora: 'pine-tree',
+  cosmic: 'auto-fix',
+};
 
 export default function ThemeScreen() {
-  const { activeThemeId, setTheme, getActiveTheme } = useSettingsStore();
+  const { activeThemeId, setTheme, getActiveTheme, setCustomColor, resetCustomColors } = useSettingsStore();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
-  const availableThemes = [
-    { id: 'midnight', name: 'Midnight', primary: '#020617', card: '#1e293b' },
-    { id: 'sand', name: 'Sand', primary: '#fdfbf7', card: '#f5f3ed' },
-  ];
+  const [activeColorPicker, setActiveColorPicker] = useState<keyof Pick<ThemeColors, 'done' | 'inProgress' | 'pending'> | null>(null);
+
+  const availableThemes = defaultThemes.map(t => ({
+    id: t.id,
+    name: t.name,
+    primary: t.colors.backgroundMain,
+    secondary: t.colors.cardStart,
+    accent: t.colors.accent,
+    cardEnd: t.colors.cardEnd,
+  }));
 
   return (
-    <View style={globalStyles.container}>
+    <View style={[globalStyles.container, { backgroundColor: theme.colors.backgroundMain }]}>
       <GlobalHeader title="Theme & Colors" showBack />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[globalStyles.subHeading, { marginBottom: 16 }]}>Select Theme</Text>
-        <View style={styles.swatchGrid}>
-          {availableThemes.map((t) => (
-            <TouchableOpacity
-              key={t.id}
-              style={[
-                styles.swatch,
-                { backgroundColor: t.primary },
-                activeThemeId === t.id && { borderColor: theme.colors.text, borderWidth: 2 },
-              ]}
-              onPress={() => setTheme(t.id)}
-            >
-              <View style={[styles.swatchCard, { backgroundColor: t.card }]} />
-              <Text style={[globalStyles.text, styles.swatchText, { color: activeThemeId === t.id ? theme.colors.text : '#888' }]}>{t.name}</Text>
-            </TouchableOpacity>
-          ))}
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Themes Grid */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionLabel}>Themes</Text>
+            <View style={[styles.headerLine, { backgroundColor: 'rgba(255,255,255,0.05)' }]} />
+          </View>
+          
+          <View style={styles.grid}>
+            {availableThemes.map((t) => {
+              const isActive = activeThemeId === t.id;
+              const iconName = THEME_ICONS[t.id] || 'palette';
+              
+              return (
+                <TouchableOpacity
+                  key={t.id}
+                  onPress={() => setTheme(t.id)}
+                  activeOpacity={0.8}
+                  style={[
+                    styles.themeCard,
+                    { borderColor: isActive ? t.accent : 'rgba(255,255,255,0.05)' }
+                  ]}
+                >
+                  <LinearGradient
+                    colors={[t.secondary, t.cardEnd]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.themeGradient}
+                  >
+                    <View style={styles.themeTop}>
+                      <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.08)' }]}>
+                        <MaterialCommunityIcons 
+                          name={iconName as any} 
+                          size={16} 
+                          color={isActive ? '#fff' : 'rgba(255,255,255,0.4)'} 
+                        />
+                      </View>
+                      {isActive && (
+                        <View style={styles.checkCircle}>
+                          <MaterialCommunityIcons name="check" size={10} color="#000" strokeWidth={4} />
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Integrated Skeleton */}
+                    <View style={styles.skeleton}>
+                      <View style={[styles.skeletonLine, { backgroundColor: 'rgba(255,255,255,0.08)' }]}>
+                        <View 
+                          style={[
+                            styles.skeletonProgress, 
+                            { 
+                              width: isActive ? '70%' : '30%',
+                              backgroundColor: 'rgba(255,255,255,0.15)' 
+                            }
+                          ]} 
+                        />
+                      </View>
+                      <View style={[styles.skeletonShort, { backgroundColor: 'rgba(255,255,255,0.04)' }]} />
+                    </View>
+
+                    <Text style={[styles.themeName, { color: 'rgba(255,255,255,0.9)' }]}>{t.name}</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
-        {/* Placeholder for Color Pickers (Done, In Progress, Pending) */}
-        <View style={styles.colorPickersSection}>
-          <Text style={[globalStyles.subHeading, { marginBottom: 16 }]}>Custom Status Colors</Text>
-          <View style={styles.colorRow}>
-            <Text style={globalStyles.text}>Done</Text>
-            <View style={[styles.colorCircle, { backgroundColor: theme.colors.done }]} />
+        {/* Status Colors */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionLabel}>Status</Text>
+            <TouchableOpacity onPress={resetCustomColors} style={styles.resetBtn}>
+              <MaterialCommunityIcons name="refresh" size={14} color="rgba(255,255,255,0.3)" />
+            </TouchableOpacity>
           </View>
-          <View style={styles.colorRow}>
-            <Text style={globalStyles.text}>In Progress</Text>
-            <View style={[styles.colorCircle, { backgroundColor: theme.colors.inProgress }]} />
-          </View>
-          <View style={styles.colorRow}>
-            <Text style={globalStyles.text}>Pending</Text>
-            <View style={[styles.colorCircle, { backgroundColor: theme.colors.pending }]} />
+
+          <View style={styles.statusList}>
+            {[
+              { label: 'Completed', key: 'done' as const },
+              { label: 'Active', key: 'inProgress' as const },
+              { label: 'Pending', key: 'pending' as const }
+            ].map((item) => (
+              <TouchableOpacity
+                key={item.key}
+                onPress={() => setActiveColorPicker(item.key)}
+                style={[
+                  styles.statusRow,
+                  { backgroundColor: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.05)' }
+                ]}
+              >
+                <View style={styles.statusLeft}>
+                  <View 
+                    style={[
+                      styles.statusIndicator, 
+                      { 
+                        backgroundColor: theme.colors[item.key],
+                        shadowColor: theme.colors[item.key],
+                        shadowOpacity: 0.4,
+                        shadowRadius: 10,
+                        elevation: 4
+                      }
+                    ]} 
+                  />
+                  <Text style={[globalStyles.text, styles.statusLabel]}>{item.label}</Text>
+                </View>
+                <View style={styles.statusRight}>
+                  <Text style={styles.hexCode}>{theme.colors[item.key].toUpperCase()}</Text>
+                  <MaterialCommunityIcons name="chevron-right" size={14} color="rgba(255,255,255,0.1)" />
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </ScrollView>
+
+      {/* Mini Picker Modal */}
+      <Modal visible={!!activeColorPicker} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.colors.cardStart, borderColor: 'rgba(255,255,255,0.1)' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{activeColorPicker?.toUpperCase()}</Text>
+              <TouchableOpacity onPress={() => setActiveColorPicker(null)} style={styles.closeBtn}>
+                <MaterialCommunityIcons name="close" size={18} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.colorGrid}>
+              {PRESET_COLORS.map((color) => (
+                <TouchableOpacity
+                  key={color}
+                  onPress={() => {
+                    if (activeColorPicker) {
+                      setCustomColor(activeColorPicker, color);
+                      setActiveColorPicker(null);
+                    }
+                  }}
+                  style={[styles.colorOption, { backgroundColor: color }]}
+                >
+                  {activeColorPicker && theme.colors[activeColorPicker] === color && (
+                    <View style={styles.optionChecked}>
+                      <MaterialCommunityIcons name="check" size={14} color="#fff" strokeWidth={4} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -60,49 +198,181 @@ export default function ThemeScreen() {
 const styles = StyleSheet.create({
   content: {
     padding: 20,
+    paddingTop: 10,
   },
-  swatchGrid: {
-    flexDirection: 'row',
-    gap: 16,
+  section: {
     marginBottom: 32,
   },
-  swatch: {
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    color: 'rgba(255,255,255,0.2)',
+  },
+  headerLine: {
     flex: 1,
-    height: 100,
-    borderRadius: 16,
-    padding: 12,
+    height: 1,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  themeCard: {
+    width: (width - 52) / 2,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'flex-end',
+    overflow: 'hidden',
   },
-  swatchCard: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    right: 12,
-    height: 40,
-    borderRadius: 8,
-    opacity: 0.8,
+  themeGradient: {
+    padding: 14,
+    height: 110,
+    justifyContent: 'space-between',
   },
-  swatchText: {
-    fontSize: 14,
-    fontFamily: 'Syne_600SemiBold',
-  },
-  colorPickersSection: {
-    marginTop: 20,
-  },
-  colorRow: {
+  themeTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
   },
-  colorCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+  iconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  checkCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  skeleton: {
+    gap: 6,
+    marginTop: 4,
+  },
+  skeletonLine: {
+    height: 4,
+    width: '100%',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  skeletonProgress: {
+    height: '100%',
+  },
+  skeletonShort: {
+    height: 4,
+    width: '50%',
+    borderRadius: 2,
+  },
+  themeName: {
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: 'Syne_600SemiBold',
+  },
+  resetBtn: {
+    padding: 4,
+  },
+  statusList: {
+    gap: 10,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  statusLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  statusIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  statusLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    opacity: 0.8,
+  },
+  statusRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  hexCode: {
+    fontSize: 9,
+    fontFamily: 'DMSans_400Regular',
+    color: 'rgba(255,255,255,0.2)',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 320,
+    borderRadius: 32,
+    padding: 24,
+    borderWidth: 1,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+    color: 'rgba(255,255,255,0.6)',
+  },
+  closeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'center',
+  },
+  colorOption: {
+    width: 50,
+    height: 50,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  optionChecked: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -6,6 +6,7 @@ import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-googl
 import { StatusBar } from 'expo-status-bar';
 import Toast from 'react-native-toast-message';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   const { language } = useSettingsStore();
@@ -25,12 +26,12 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
       <Toast />
-    </>
+    </GestureHandlerRootView>
   );
 }

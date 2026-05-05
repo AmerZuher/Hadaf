@@ -35,8 +35,11 @@ export default function BackupScreen() {
       const content = await FileSystem.readAsStringAsync(file.uri);
       const parsed = JSON.parse(content);
       
-      // Basic validation and import
-      if (Array.isArray(parsed)) {
+      // Check if it's a full backup { objectives, todos } or just an array of todos
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.objectives && parsed.todos) {
+        useObjectiveStore.setState({ objectives: parsed.objectives, todos: parsed.todos });
+        Alert.alert('Success', 'Full backup restored successfully!');
+      } else if (Array.isArray(parsed)) {
         importTodos(parsed);
         Alert.alert('Success', 'Todos imported successfully!');
       } else {
