@@ -10,10 +10,12 @@ import { FilterBar } from '../../components/FilterBar';
 import { ObjectiveCard } from '../../components/ObjectiveCard';
 import { CategorySelector } from '../../components/CategorySelector';
 import { useCategoryStore } from '../../store/useCategoryStore';
+import { useTranslations } from '../../hooks/useTranslations';
 
 export default function HomeScreen() {
   const { getActiveTheme } = useSettingsStore();
   const { objectives, addObjective } = useObjectiveStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
@@ -55,17 +57,17 @@ export default function HomeScreen() {
 
   return (
     <View style={globalStyles.container}>
-      <GlobalHeader title="Hadaf" showSettings />
+      <GlobalHeader title={t('appName')} showSettings />
       <PresentationSwitcher activeMode={activeMode} onModeChange={setActiveMode} />
       <FilterBar
         filterOptions={[
-          { id: 'all', label: 'All Categories' },
-          ...categories.map(c => ({ id: c.id, label: c.name }))
+          { id: 'all', label: t('allCategories') },
+          ...categories.map(c => ({ id: c.id, label: c.isCustom ? c.name : t(c.id as any) }))
         ]}
         sortOptions={[
-          { id: 'start_desc', label: 'Newest First' },
-          { id: 'start_asc', label: 'Oldest First' },
-          { id: 'name', label: 'Name (A-Z)' }
+          { id: 'start_desc', label: t('newestFirst') },
+          { id: 'start_asc', label: t('oldestFirst') },
+          { id: 'name', label: t('nameAZ') }
         ]}
         activeFilter={activeFilter}
         activeSort={activeSort}
@@ -118,16 +120,16 @@ export default function HomeScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={[styles.modalContent, { backgroundColor: theme.colors.cardStart }]}
           >
-            <View style={styles.modalHeader}>
-              <Text style={globalStyles.subHeading}>New Objective</Text>
+            <View style={[styles.modalHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+              <Text style={globalStyles.subHeading}>{t('newObjective')}</Text>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                 <MaterialCommunityIcons name="close" size={24} color={theme.colors.text} />
               </TouchableOpacity>
             </View>
 
             <TextInput
-              style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)' }]}
-              placeholder="What do you want to achieve?"
+              style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
+              placeholder={t('objectivePlaceholder')}
               placeholderTextColor="rgba(255,255,255,0.4)"
               value={newObjectiveName}
               onChangeText={setNewObjectiveName}
@@ -143,7 +145,7 @@ export default function HomeScreen() {
               style={[styles.createBtn, { backgroundColor: theme.colors.text }]}
               onPress={handleCreateObjective}
             >
-              <Text style={[styles.createBtnText, { color: theme.colors.backgroundMain }]}>Create Objective</Text>
+              <Text style={[styles.createBtnText, { color: theme.colors.backgroundMain }]}>{t('createObjective')}</Text>
             </TouchableOpacity>
           </KeyboardAvoidingView>
         </View>

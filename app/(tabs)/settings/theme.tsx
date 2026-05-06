@@ -6,6 +6,7 @@ import { GlobalHeader } from '../../../components/GlobalHeader';
 import { useSettingsStore, defaultThemes } from '../../../store/useSettingsStore';
 import { getGlobalStyles } from '../../../theme/theme';
 import { ThemeColors } from '../../../store/types';
+import { useTranslations } from '../../../hooks/useTranslations';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ const THEME_ICONS: Record<string, string> = {
 
 export default function ThemeScreen() {
   const { activeThemeId, setTheme, getActiveTheme, setCustomColor, resetCustomColors } = useSettingsStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
@@ -39,17 +41,17 @@ export default function ThemeScreen() {
 
   return (
     <View style={[globalStyles.container, { backgroundColor: theme.colors.backgroundMain }]}>
-      <GlobalHeader title="Theme & Colors" showBack />
+      <GlobalHeader title={t('theme')} showBack />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Themes Grid */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>Themes</Text>
+          <View style={[styles.sectionHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+            <Text style={styles.sectionLabel}>{t('themes')}</Text>
             <View style={[styles.headerLine, { backgroundColor: 'rgba(255,255,255,0.05)' }]} />
           </View>
           
-          <View style={styles.grid}>
+          <View style={[styles.grid, isRTL && { flexDirection: 'row-reverse' }]}>
             {availableThemes.map((t) => {
               const isActive = activeThemeId === t.id;
               const iconName = THEME_ICONS[t.id] || 'palette';
@@ -70,7 +72,7 @@ export default function ThemeScreen() {
                     end={{ x: 1, y: 1 }}
                     style={styles.themeGradient}
                   >
-                    <View style={styles.themeTop}>
+                    <View style={[styles.themeTop, isRTL && { flexDirection: 'row-reverse' }]}>
                       <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.08)' }]}>
                         <MaterialCommunityIcons 
                           name={iconName as any} 
@@ -93,15 +95,16 @@ export default function ThemeScreen() {
                             styles.skeletonProgress, 
                             { 
                               width: isActive ? '70%' : '30%',
-                              backgroundColor: 'rgba(255,255,255,0.15)' 
+                              backgroundColor: 'rgba(255,255,255,0.15)',
+                              alignSelf: isRTL ? 'flex-end' : 'flex-start'
                             }
                           ]} 
                         />
                       </View>
-                      <View style={[styles.skeletonShort, { backgroundColor: 'rgba(255,255,255,0.04)' }]} />
+                      <View style={[styles.skeletonShort, { backgroundColor: 'rgba(255,255,255,0.04)', alignSelf: isRTL ? 'flex-end' : 'flex-start' }]} />
                     </View>
 
-                    <Text style={[styles.themeName, { color: 'rgba(255,255,255,0.9)' }]}>{t.name}</Text>
+                    <Text style={[styles.themeName, { color: 'rgba(255,255,255,0.9)', textAlign: isRTL ? 'right' : 'left' }]}>{t.name}</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               );
@@ -111,8 +114,8 @@ export default function ThemeScreen() {
 
         {/* Status Colors */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>Status</Text>
+          <View style={[styles.sectionHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+            <Text style={styles.sectionLabel}>{t('status')}</Text>
             <TouchableOpacity onPress={resetCustomColors} style={styles.resetBtn}>
               <MaterialCommunityIcons name="refresh" size={14} color="rgba(255,255,255,0.3)" />
             </TouchableOpacity>
@@ -120,19 +123,19 @@ export default function ThemeScreen() {
 
           <View style={styles.statusList}>
             {[
-              { label: 'Completed', key: 'done' as const },
-              { label: 'Active', key: 'inProgress' as const },
-              { label: 'Pending', key: 'pending' as const }
+              { label: t('done'), key: 'done' as const },
+              { label: t('inProgress'), key: 'inProgress' as const },
+              { label: t('pending'), key: 'pending' as const }
             ].map((item) => (
               <TouchableOpacity
                 key={item.key}
                 onPress={() => setActiveColorPicker(item.key)}
                 style={[
                   styles.statusRow,
-                  { backgroundColor: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.05)' }
+                  { backgroundColor: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.05)', flexDirection: isRTL ? 'row-reverse' : 'row' }
                 ]}
               >
-                <View style={styles.statusLeft}>
+                <View style={[styles.statusLeft, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                   <View 
                     style={[
                       styles.statusIndicator, 
@@ -147,9 +150,9 @@ export default function ThemeScreen() {
                   />
                   <Text style={[globalStyles.text, styles.statusLabel]}>{item.label}</Text>
                 </View>
-                <View style={styles.statusRight}>
+                <View style={[styles.statusRight, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                   <Text style={styles.hexCode}>{theme.colors[item.key].toUpperCase()}</Text>
-                  <MaterialCommunityIcons name="chevron-right" size={14} color="rgba(255,255,255,0.1)" />
+                  <MaterialCommunityIcons name={isRTL ? "chevron-left" : "chevron-right"} size={14} color="rgba(255,255,255,0.1)" />
                 </View>
               </TouchableOpacity>
             ))}
@@ -161,14 +164,14 @@ export default function ThemeScreen() {
       <Modal visible={!!activeColorPicker} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.colors.cardStart, borderColor: 'rgba(255,255,255,0.1)' }]}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{activeColorPicker?.toUpperCase()}</Text>
+            <View style={[styles.modalHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+              <Text style={styles.modalTitle}>{t(activeColorPicker === 'done' ? 'done' : activeColorPicker === 'inProgress' ? 'inProgress' : 'pending').toUpperCase()}</Text>
               <TouchableOpacity onPress={() => setActiveColorPicker(null)} style={styles.closeBtn}>
                 <MaterialCommunityIcons name="close" size={18} color="#fff" />
               </TouchableOpacity>
             </View>
             
-            <View style={styles.colorGrid}>
+            <View style={[styles.colorGrid, isRTL && { flexDirection: 'row-reverse' }]}>
               {PRESET_COLORS.map((color) => (
                 <TouchableOpacity
                   key={color}
@@ -204,7 +207,6 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   sectionHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     marginBottom: 16,
@@ -237,7 +239,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   themeTop: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -288,15 +289,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   statusRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 16,
+    padding: 20,
+    borderRadius: 20,
     borderWidth: 1,
   },
   statusLeft: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
@@ -311,7 +310,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   statusRight: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
@@ -335,7 +333,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   modalHeader: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,

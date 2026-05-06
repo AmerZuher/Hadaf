@@ -14,7 +14,8 @@ import { NotificationModal } from '../../components/NotificationModal';
 import { scheduleTodoNotification, cancelNotification } from '../../utils/notifications';
 import { NotificationConfig, Status } from '../../store/types';
 import Toast from 'react-native-toast-message';
-import { todoSchema, TodoFormData } from '../../utils/validation';
+import { getTodoSchema, TodoFormData } from '../../utils/validation';
+import { useTranslations } from '../../hooks/useTranslations';
 
 type Tab = 'todos' | 'kanban' | 'archived';
 
@@ -22,6 +23,7 @@ const ObjectiveScreen = () => {
   const { id } = useLocalSearchParams();
   const { getActiveTheme } = useSettingsStore();
   const { objectives, todos, updateTodo, archiveTodo, restoreTodo, deleteTodo, addTodo } = useObjectiveStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
@@ -89,6 +91,7 @@ const ObjectiveScreen = () => {
   };
 
   const handleSaveTodo = () => {
+    const todoSchema = getTodoSchema(t);
     const result = todoSchema.safeParse(formData);
 
     if (!result.success) {
@@ -113,8 +116,8 @@ const ObjectiveScreen = () => {
     if (isDuplicate) {
       Toast.show({
         type: 'error',
-        text1: 'Duplicate Task',
-        text2: 'A task with this name already exists.',
+        text1: t('duplicateTask'),
+        text2: t('duplicateTaskMsg'),
       });
       return;
     }
@@ -170,7 +173,7 @@ const ObjectiveScreen = () => {
   if (!objective) {
     return (
       <View style={[globalStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={globalStyles.text}>Objective not found</Text>
+        <Text style={globalStyles.text}>{t('objectiveNotFound')}</Text>
       </View>
     );
   }
@@ -200,9 +203,9 @@ const ObjectiveScreen = () => {
 
   const renderKanban = () => {
     const statuses: { id: Status; label: string; color: string }[] = [
-      { id: 'pending', label: 'Pending', color: theme.colors.pending },
-      { id: 'in-progress', label: 'In Progress', color: theme.colors.inProgress },
-      { id: 'done', label: 'Done', color: theme.colors.done },
+      { id: 'pending', label: t('pending'), color: theme.colors.pending },
+      { id: 'in-progress', label: t('inProgress'), color: theme.colors.inProgress },
+      { id: 'done', label: t('done'), color: theme.colors.done },
     ];
 
     return (
@@ -210,9 +213,9 @@ const ObjectiveScreen = () => {
         {statuses.map((column) => {
           const columnTodos = displayedTodos.filter((t) => t.status === column.id);
           return (
-            <View key={column.id} style={styles.kanbanColumn}>
-              <View style={styles.columnHeader}>
-                <View style={[styles.columnIndicator, { backgroundColor: column.color }]} />
+            <View key={column.id} style={[styles.kanbanColumn, isRTL && { direction: 'rtl' }]}>
+              <View style={[styles.columnHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+                <View style={[styles.columnIndicator, { backgroundColor: column.color }, isRTL ? { marginLeft: 10, marginRight: 0 } : { marginRight: 10 }]} />
                 <Text style={[globalStyles.subHeading, { fontSize: 16 }]}>{column.label}</Text>
                 <View style={[styles.countBadge, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
                   <Text style={[globalStyles.text, { fontSize: 12, opacity: 0.8 }]}>{columnTodos.length}</Text>
@@ -277,30 +280,30 @@ const ObjectiveScreen = () => {
     <View style={globalStyles.container}>
       <GlobalHeader title={objective.name} showBack />
 
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, isRTL && { flexDirection: 'row-reverse' }]}>
         <TouchableOpacity style={[styles.tab, activeTab === 'todos' && { borderBottomColor: theme.colors.text }]} onPress={() => setActiveTab('todos')}>
-          <Text style={[styles.tabText, { color: theme.colors.text, opacity: activeTab === 'todos' ? 1 : 0.5 }]}>To-Dos</Text>
+          <Text style={[styles.tabText, { color: theme.colors.text, opacity: activeTab === 'todos' ? 1 : 0.5 }]}>{t('todosTab')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.tab, activeTab === 'kanban' && { borderBottomColor: theme.colors.text }]} onPress={() => setActiveTab('kanban')}>
-          <Text style={[styles.tabText, { color: theme.colors.text, opacity: activeTab === 'kanban' ? 1 : 0.5 }]}>Kanban</Text>
+          <Text style={[styles.tabText, { color: theme.colors.text, opacity: activeTab === 'kanban' ? 1 : 0.5 }]}>{t('kanbanTab')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.tab, activeTab === 'archived' && { borderBottomColor: theme.colors.text }]} onPress={() => setActiveTab('archived')}>
-          <Text style={[styles.tabText, { color: theme.colors.text, opacity: activeTab === 'archived' ? 1 : 0.5 }]}>Archived</Text>
+          <Text style={[styles.tabText, { color: theme.colors.text, opacity: activeTab === 'archived' ? 1 : 0.5 }]}>{t('archivedTab')}</Text>
         </TouchableOpacity>
       </View>
 
       {activeTab === 'todos' && (
         <FilterBar
           filterOptions={[
-            { id: 'all', label: 'All Statuses' },
-            { id: 'pending', label: 'Pending' },
-            { id: 'in-progress', label: 'In Progress' },
-            { id: 'done', label: 'Done' }
+            { id: 'all', label: t('allStatuses') },
+            { id: 'pending', label: t('pending') },
+            { id: 'in-progress', label: t('inProgress') },
+            { id: 'done', label: t('done') }
           ]}
           sortOptions={[
-            { id: 'start_desc', label: 'Newest First' },
-            { id: 'start_asc', label: 'Oldest First' },
-            { id: 'name', label: 'Name (A-Z)' }
+            { id: 'start_desc', label: t('newestFirst') },
+            { id: 'start_asc', label: t('oldestFirst') },
+            { id: 'name', label: t('nameAZ') }
           ]}
           activeFilter={activeFilter}
           activeSort={activeSort}
@@ -331,8 +334,8 @@ const ObjectiveScreen = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={[styles.modalContent, { backgroundColor: theme.colors.cardStart }]}
           >
-            <View style={styles.modalHeader}>
-              <Text style={globalStyles.subHeading}>{editingTodoId ? 'Edit To-Do' : 'New To-Do'}</Text>
+            <View style={[styles.modalHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+              <Text style={globalStyles.subHeading}>{editingTodoId ? t('editTodo') : t('newTodo')}</Text>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                 <MaterialCommunityIcons name="close" size={24} color={theme.colors.text} />
               </TouchableOpacity>
@@ -340,8 +343,8 @@ const ObjectiveScreen = () => {
 
             <ScrollView style={{ maxHeight: '80%' }}>
               <TextInput
-                style={[styles.input, formErrors.name && styles.inputError, { color: theme.colors.text, borderColor: formErrors.name ? theme.colors.pending : 'rgba(255,255,255,0.1)' }]}
-                placeholder="What needs to be done?"
+                style={[styles.input, formErrors.name && styles.inputError, { color: theme.colors.text, borderColor: formErrors.name ? theme.colors.pending : 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
+                placeholder={t('todoPlaceholder')}
                 placeholderTextColor="rgba(255,255,255,0.4)"
                 value={formData.name}
                 onChangeText={(text) => {
@@ -423,16 +426,16 @@ const ObjectiveScreen = () => {
               )}
 
               <TextInput
-                style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)' }]}
-                placeholder="Location (Optional)"
+                style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
+                placeholder={`${t('location')} (${t('cancel')})`}
                 placeholderTextColor="rgba(255,255,255,0.4)"
                 value={formData.location}
                 onChangeText={(text) => setFormData({ ...formData, location: text })}
               />
 
               <TextInput
-                style={[styles.input, styles.textArea, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)' }]}
-                placeholder="Notes (Optional)"
+                style={[styles.input, styles.textArea, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
+                placeholder={`${t('notes')} (${t('cancel')})`}
                 placeholderTextColor="rgba(255,255,255,0.4)"
                 value={formData.notes}
                 onChangeText={(text) => setFormData({ ...formData, notes: text })}
@@ -440,9 +443,11 @@ const ObjectiveScreen = () => {
                 numberOfLines={3}
               />
 
-              <TouchableOpacity style={[styles.input, styles.fileInput, { borderColor: 'rgba(255,255,255,0.1)' }]}>
-                <MaterialCommunityIcons name="paperclip" size={20} color={theme.colors.text} style={{ opacity: 0.7 }} />
-                <Text style={[globalStyles.text, { marginLeft: 12, opacity: 0.6 }]}>Attach File (Dummy)</Text>
+              <TouchableOpacity style={[styles.attachBtn, { borderColor: 'rgba(255,255,255,0.05)', flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                <MaterialCommunityIcons name="paperclip" size={20} color={theme.colors.text} style={{ opacity: 0.5 }} />
+                <Text style={[globalStyles.text, { marginLeft: isRTL ? 0 : 12, marginRight: isRTL ? 12 : 0, opacity: 0.6 }]}>
+                  {t('attachFile')}
+                </Text>
               </TouchableOpacity>
             </ScrollView>
 
@@ -451,7 +456,7 @@ const ObjectiveScreen = () => {
               onPress={handleSaveTodo}
             >
               <Text style={[styles.createBtnText, { color: theme.colors.backgroundMain }]}>
-                {editingTodoId ? 'Save Changes' : 'Add To-Do'}
+                {editingTodoId ? t('saveChanges') : t('addTodoBtn')}
               </Text>
             </TouchableOpacity>
           </KeyboardAvoidingView>
@@ -570,9 +575,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Syne_600SemiBold',
     fontSize: 16,
   },
-  fileInput: {
+  attachBtn: {
+    height: 60,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 24,
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
   kanbanContainer: {
     padding: 16,

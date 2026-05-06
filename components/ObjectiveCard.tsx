@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Objective, Todo, Status } from '../store/types';
+import { Objective } from '../store/types';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useCategoryStore } from '../store/useCategoryStore';
 import { useObjectiveStore } from '../store/useObjectiveStore';
+import { useTranslations } from '../hooks/useTranslations';
 import { getGlobalStyles } from '../theme/theme';
 import { format, isAfter } from 'date-fns';
 
@@ -20,6 +21,7 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
   const { getActiveTheme } = useSettingsStore();
   const { getAllCategories } = useCategoryStore();
   const { todos } = useObjectiveStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
@@ -86,9 +88,9 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
           </View>
 
           <View style={styles.gridBottom}>
-            <View style={styles.gridProgressRow}>
-              <Text style={styles.gridProgressText}>Progress</Text>
-              <Text style={styles.gridProgressText}>{Math.round(progress)}%</Text>
+            <View style={[styles.gridProgressRow, isRTL && { flexDirection: 'row-reverse' }]}>
+              <Text style={styles.gridProgressText}>{t('progress')}</Text>
+              <Text style={[styles.gridProgressText, { color: '#fff' }]}>{Math.round(progress)}%</Text>
             </View>
             <View style={[styles.progressBarBg, { backgroundColor: 'rgba(255, 255, 255, 0.1)', height: 4 }]}>
               <View style={[styles.progressBarFill, { width: `${progress}%`, backgroundColor: theme.colors.done }]} />
@@ -120,13 +122,13 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
         </View>
 
         <Text style={[globalStyles.text, styles.dateText]}>
-          Started: {format(new Date(objective.createdAt), 'MMM d, yyyy')}
+          {t('started')}: {format(new Date(objective.createdAt), 'MMM d, yyyy')}
         </Text>
 
         <View style={styles.progressContainer}>
-          <View style={styles.progressHeader}>
-            <Text style={globalStyles.text}>Progress</Text>
-            <Text style={globalStyles.text}>{Math.round(progress)}%</Text>
+          <View style={[styles.progressHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+            <Text style={globalStyles.text}>{t('progress')}</Text>
+            <Text style={[globalStyles.text, { fontFamily: 'Syne_600SemiBold' }]}>{Math.round(progress)}%</Text>
           </View>
           <View style={[styles.progressBarBg, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
             <View style={[styles.progressBarFill, { width: `${progress}%`, backgroundColor: theme.colors.done }]} />

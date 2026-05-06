@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, I18nManager } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Todo, Status } from '../store/types';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { useTranslations } from '../hooks/useTranslations';
 import { getGlobalStyles } from '../theme/theme';
 import { format } from 'date-fns';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -22,8 +23,6 @@ interface TodoCardProps {
   isReadOnly?: boolean;
 }
 
-const ACTION_WIDTH = 180; // 3 actions * 60 width
-
 export const TodoCard: React.FC<TodoCardProps> = ({
   item,
   drag,
@@ -37,6 +36,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({
   isReadOnly = false,
 }) => {
   const { getActiveTheme } = useSettingsStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
@@ -98,14 +98,17 @@ export const TodoCard: React.FC<TodoCardProps> = ({
 
               {!isReadOnly && !isCompact && (
                 <View style={styles.compactStatusPicker}>
-                  <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'done'); }} style={[styles.compactStatusBtn, item.status === 'done' && { backgroundColor: theme.colors.done }]}>
-                    <Text style={[styles.statusText, item.status === 'done' && { opacity: 1 }]}>Done</Text>
+                  <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'done'); }} style={[styles.statusItem, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                    <View style={[styles.statusDot, { backgroundColor: theme.colors.done }, item.status === 'done' && { opacity: 1 }]} />
+                    <Text style={[styles.statusText, item.status === 'done' && { opacity: 1 }]}>{t('done')}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'in-progress'); }} style={[styles.compactStatusBtn, item.status === 'in-progress' && { backgroundColor: theme.colors.inProgress }]}>
-                    <Text style={[styles.statusText, item.status === 'in-progress' && { opacity: 1 }]}>Progress</Text>
+                  <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'in-progress'); }} style={[styles.statusItem, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                    <View style={[styles.statusDot, { backgroundColor: theme.colors.inProgress }, item.status === 'in-progress' && { opacity: 1 }]} />
+                    <Text style={[styles.statusText, item.status === 'in-progress' && { opacity: 1 }]}>{t('inProgress')}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'pending'); }} style={[styles.compactStatusBtn, item.status === 'pending' && { backgroundColor: theme.colors.pending }]}>
-                    <Text style={[styles.statusText, item.status === 'pending' && { opacity: 1 }]}>Wait</Text>
+                  <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onStatusChange(item.id, 'pending'); }} style={[styles.statusItem, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                    <View style={[styles.statusDot, { backgroundColor: theme.colors.pending }, item.status === 'pending' && { opacity: 1 }]} />
+                    <Text style={[styles.statusText, item.status === 'pending' && { opacity: 1 }]}>{t('pending')}</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -113,19 +116,17 @@ export const TodoCard: React.FC<TodoCardProps> = ({
 
             <View style={[styles.detailsRow, isCompact && { marginBottom: 8 }]}>
               {item.startDate && (
-                <View style={[styles.detailBadge, isCompact && { paddingVertical: 4 }]}>
-                  <Text style={styles.detailLabel}>Start</Text>
-                  <Text style={[globalStyles.text, { fontSize: isCompact ? 10 : 12 }]}>
-                    {format(new Date(item.startDate), 'MMM d')}
-                  </Text>
+                <View style={[styles.detailItem, isRTL && { flexDirection: 'row-reverse' }]}>
+                  <MaterialCommunityIcons name="calendar-start" size={14} color={theme.colors.text} style={{ opacity: 0.5 }} />
+                  <Text style={[styles.detailLabel, isRTL && { marginRight: 0, marginLeft: 8 }]}>{t('start')}</Text>
+                  <Text style={styles.detailValue}>{item.startDate ? format(new Date(item.startDate), 'MMM dd') : '...'}</Text>
                 </View>
               )}
-              {!isCompact && item.endDate && (
-                <View style={styles.detailBadge}>
-                  <Text style={styles.detailLabel}>End</Text>
-                  <Text style={[globalStyles.text, { fontSize: 12 }]}>
-                    {format(new Date(item.endDate), 'MMM d')}
-                  </Text>
+              {item.endDate && (
+                <View style={[styles.detailItem, isRTL && { flexDirection: 'row-reverse' }]}>
+                  <MaterialCommunityIcons name="calendar-end" size={14} color={theme.colors.text} style={{ opacity: 0.5 }} />
+                  <Text style={[styles.detailLabel, isRTL && { marginRight: 0, marginLeft: 8 }]}>{t('end')}</Text>
+                  <Text style={styles.detailValue}>{item.endDate ? format(new Date(item.endDate), 'MMM dd') : '...'}</Text>
                 </View>
               )}
             </View>
@@ -149,23 +150,25 @@ export const TodoCard: React.FC<TodoCardProps> = ({
 
             {!isCompact && (
               <View style={styles.attachmentsContainer}>
-                <View style={styles.attachmentBadge}>
-                  <MaterialCommunityIcons name="paperclip" size={14} color={theme.colors.text} />
-                  <Text style={styles.attachmentText}>Next Actions</Text>
+                <View style={[styles.attachmentBadge, { backgroundColor: theme.colors.inProgress + '20', flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <MaterialCommunityIcons name="link-variant" size={12} color={theme.colors.inProgress} />
+                  <Text style={styles.attachmentText}>{t('nextActions')}</Text>
                 </View>
               </View>
             )}
           </TouchableOpacity>
         </LinearGradient>
       </View>
-      {/* Notes Popup Modal */}
       <Modal visible={isNoteModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={[styles.noteModalContent, { backgroundColor: theme.colors.cardStart }]}>
-            <Text style={[globalStyles.subHeading, { marginBottom: 12 }]}>Notes</Text>
-            <Text style={[globalStyles.text, { lineHeight: 24, opacity: 0.9 }]}>{item.notes}</Text>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => setIsNoteModalVisible(false)}>
-              <Text style={[globalStyles.text, { color: theme.colors.backgroundMain, fontFamily: 'Syne_600SemiBold' }]}>Close</Text>
+          <View style={[styles.notesContent, { backgroundColor: theme.colors.cardEnd }]}>
+            <Text style={[globalStyles.subHeading, { marginBottom: 12, textAlign: isRTL ? 'right' : 'left' }]}>{t('notes')}</Text>
+            <Text style={[globalStyles.text, { opacity: 0.8, marginBottom: 20, textAlign: isRTL ? 'right' : 'left' }]}>{item.notes}</Text>
+            <TouchableOpacity 
+              style={[styles.closeNotesBtn, { backgroundColor: theme.colors.text }]} 
+              onPress={() => setIsNoteModalVisible(false)}
+            >
+              <Text style={[globalStyles.text, { color: theme.colors.backgroundMain, fontFamily: 'Syne_600SemiBold' }]}>{t('close')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -255,31 +258,46 @@ const styles = StyleSheet.create({
   },
   compactStatusPicker: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    padding: 2,
-    borderRadius: 14,
-    gap: 2,
+    gap: 12,
   },
-  compactStatusBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 24,
+  statusItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 4,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    opacity: 0.3,
   },
   statusText: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#fff',
     fontFamily: 'Syne_600SemiBold',
     opacity: 0.3,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  detailValue: {
+    fontSize: 11,
+    color: '#fff',
+    fontFamily: 'DMSans_500Medium',
+    opacity: 0.8,
   },
   rightActionsContainer: {
     flexDirection: 'row',
     marginBottom: 16,
     paddingLeft: 4,
-    width: 200, // Fixed width for 3 actions
+    width: 180,
   },
   actionBtn: {
     flex: 1,
@@ -290,17 +308,18 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
     padding: 24,
   },
-  noteModalContent: {
+  notesContent: {
     padding: 24,
     borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  closeBtn: {
-    marginTop: 24,
-    backgroundColor: '#fff',
+  closeNotesBtn: {
+    marginTop: 12,
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',

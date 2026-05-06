@@ -1,0 +1,285 @@
+export const TRANSLATIONS = {
+  en: {
+    // General
+    appName: 'Hadaf',
+    dashboard: 'Dashboard',
+    settings: 'Settings',
+    about: 'About',
+    back: 'Back',
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    done: 'Done',
+    inProgress: 'In Progress',
+    pending: 'Pending',
+    all: 'All',
+    
+    // Dashboard
+    objectives: 'Objectives',
+    newObjective: 'New Objective',
+    objectiveName: 'Objective Name',
+    noObjectives: 'No objectives yet. Start by creating one!',
+    allCategories: 'All Categories',
+    newestFirst: 'Newest First',
+    oldestFirst: 'Oldest First',
+    nameAZ: 'Name (A-Z)',
+    filterBy: 'Filter By',
+    sortBy: 'Sort By',
+    objectivePlaceholder: 'What do you want to achieve?',
+    createObjective: 'Create Objective',
+    progress: 'Progress',
+    started: 'Started',
+    
+    // Objective Detail
+    todosTab: 'To-Dos',
+    kanbanTab: 'Kanban',
+    archivedTab: 'Archived',
+    allStatuses: 'All Statuses',
+    editTodo: 'Edit Task',
+    newTodo: 'New Task',
+    todoPlaceholder: 'What needs to be done?',
+    saveChanges: 'Save Changes',
+    addTodoBtn: 'Add Task',
+    duplicateTask: 'Duplicate Task',
+    duplicateTaskMsg: 'A task with this name already exists.',
+    objectiveNotFound: 'Objective not found',
+    attachFile: 'Attach File (Dummy)',
+    end: 'End',
+    nextActions: 'Next Actions',
+    close: 'Close',
+    
+    // Backup
+    exportDesc: 'Save your objectives and tasks to a file',
+    importDesc: 'Load a JSON backup file',
+    importFormat: 'JSON Import Format Example',
+    fullBackupRestored: 'Full backup restored successfully!',
+    todosImported: 'Tasks imported successfully!',
+    backupSaved: 'Backup saved to',
+    exportFailed: 'Failed to export backup',
+    importFailed: 'Failed to read file or file is not valid JSON',
+    restartMsg: 'Changing to/from Arabic requires an app restart to align the interface correctly.',
+    categoryName: 'Category Name',
+    
+    // Theme
+    themes: 'Themes',
+    status: 'Status',
+    
+    // Notification
+    notificationSettings: 'Notification Settings',
+    enableNotification: 'Enable Notification',
+    dateTime: 'Date & Time',
+    repeat: 'Repeat',
+    saveConfig: 'Save Configuration',
+    none: 'None',
+    daily: 'Daily',
+    weekly: 'Weekly',
+
+    // Categories
+    category: 'Category',
+    selectCategory: 'Select Category',
+    createCustomCategory: 'Create Custom Category',
+    newCategory: 'New Category',
+    saveCategory: 'Save Category',
+    work: 'Work',
+    personal: 'Personal',
+    health: 'Health',
+    finance: 'Finance',
+    education: 'Education',
+    travel: 'Travel',
+    home: 'Home',
+    project: 'Project',
+    
+    // Objectives Screen
+    addTodo: 'Add Task',
+    todoName: 'Task Name',
+    notes: 'Notes',
+    location: 'Location',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    noTodos: 'No tasks for this objective.',
+    
+    // Kanban
+    kanban: 'Kanban',
+    
+    // Settings
+    language: 'Language',
+    theme: 'Theme & Colors',
+    backup: 'Backup & Data',
+    exportData: 'Export Data',
+    importData: 'Import Data',
+    resetColors: 'Reset Custom Colors',
+    
+    // About
+    version: 'Version',
+    vision: 'Our Vision',
+    visionDesc: 'Hadaf (Target) was built for those who find standard productivity tools too simple and traditional project managers too complex. We focus on high-contrast visuals and essential workflows to keep you in the flow state.',
+    features: 'Key Features',
+    f1Title: 'Dynamic Objectives',
+    f1Desc: 'Break down your vision into achievable milestones.',
+    f2Title: 'Kanban Flow',
+    f2Desc: 'Visualize your progress with an industrial-grade board.',
+    f3Title: 'Smart Alerts',
+    f3Desc: 'Stay on track with precisely timed notifications.',
+    f4Title: 'Premium Themes',
+    f4Desc: 'Experience productivity in high-contrast elegance.',
+    handcrafted: 'Handcrafted for excellence.',
+    copyright: 'Hadaf Productivity Systems',
+    
+    // Alerts
+    success: 'Success',
+    error: 'Error',
+    backupExported: 'Backup exported successfully',
+    backupImported: 'Backup imported successfully',
+    invalidFormat: 'Invalid file format',
+    
+    // Validation
+    taskNameRequired: 'Task name is required',
+    taskNameTooLong: 'Task name must be less than 100 characters',
+    locationTooLong: 'Location must be less than 100 characters',
+    notesTooLong: 'Notes must be less than 500 characters',
+  },
+  ar: {
+    // General
+    appName: 'هدف',
+    dashboard: 'لوحة التحكم',
+    settings: 'الإعدادات',
+    about: 'حول التطبيق',
+    back: 'رجوع',
+    save: 'حفظ',
+    cancel: 'إلغاء',
+    delete: 'حذف',
+    edit: 'تعديل',
+    done: 'مكتمل',
+    inProgress: 'قيد التنفيذ',
+    pending: 'قيد الانتظار',
+    all: 'الكل',
+    
+    // Dashboard
+    objectives: 'الأهداف',
+    newObjective: 'هدف جديد',
+    objectiveName: 'اسم الهدف',
+    noObjectives: 'لا توجد أهداف بعد. ابدأ بإنشاء واحد الآن!',
+    allCategories: 'جميع الفئات',
+    newestFirst: 'الأحدث أولاً',
+    oldestFirst: 'الأقدم أولاً',
+    nameAZ: 'الاسم (أ-ي)',
+    filterBy: 'تصفية حسب',
+    sortBy: 'ترتيب حسب',
+    objectivePlaceholder: 'ماذا تريد أن تحقق؟',
+    createObjective: 'إنشاء هدف',
+    progress: 'التقدم',
+    started: 'بدأ في',
+    
+    // Objective Detail
+    todosTab: 'المهام',
+    kanbanTab: 'كانبان',
+    archivedTab: 'المؤرشفة',
+    allStatuses: 'جميع الحالات',
+    editTodo: 'تعديل المهمة',
+    newTodo: 'مهمة جديدة',
+    todoPlaceholder: 'ما الذي يجب فعله؟',
+    saveChanges: 'حفظ التغييرات',
+    addTodoBtn: 'إضافة مهمة',
+    duplicateTask: 'مهمة مكررة',
+    duplicateTaskMsg: 'توجد مهمة بهذا الاسم بالفعل.',
+    objectiveNotFound: 'الهدف غير موجود',
+    attachFile: 'إرفاق ملف (تجريبي)',
+    start: 'البدء',
+    end: 'الانتهاء',
+    nextActions: 'الخطوات التالية',
+    close: 'إغلاق',
+    
+    // Backup
+    exportDesc: 'احفظ أهدافك ومهامك في ملف',
+    importDesc: 'تحميل ملف نسخة احتياطية (JSON)',
+    importFormat: 'مثال على تنسيق الاستيراد (JSON)',
+    fullBackupRestored: 'تم استعادة النسخة الاحتياطية الكاملة بنجاح!',
+    todosImported: 'تم استيراد المهام بنجاح!',
+    backupSaved: 'تم حفظ النسخة الاحتياطية في',
+    exportFailed: 'فشل تصدير النسخة الاحتياطية',
+    importFailed: 'فشل قراءة الملف أو أن الملف غير صالح',
+    restartMsg: 'يتطلب التغيير من/إلى العربية إعادة تشغيل التطبيق لمحاذاة الواجهة بشكل صحيح.',
+    categoryName: 'اسم الفئة',
+    
+    // Theme
+    themes: 'السمات',
+    status: 'الحالة',
+
+    // Notification
+    notificationSettings: 'إعدادات التنبيه',
+    enableNotification: 'تفعيل التنبيه',
+    dateTime: 'التاريخ والوقت',
+    repeat: 'تكرار',
+    saveConfig: 'حفظ الإعدادات',
+    none: 'لا شيء',
+    daily: 'يومي',
+    weekly: 'أسبوعي',
+
+    // Categories
+    category: 'الفئة',
+    selectCategory: 'اختر الفئة',
+    createCustomCategory: 'إنشاء فئة مخصصة',
+    newCategory: 'فئة جديدة',
+    saveCategory: 'حفظ الفئة',
+    work: 'العمل',
+    personal: 'شخصي',
+    health: 'الصحة',
+    finance: 'المالية',
+    education: 'التعليم',
+    travel: 'السفر',
+    home: 'المنزل',
+    project: 'مشروع',
+    
+    // Objectives Screen
+    addTodo: 'إضافة مهمة',
+    todoName: 'اسم المهمة',
+    notes: 'ملاحظات',
+    location: 'الموقع',
+    startDate: 'تاريخ البدء',
+    endDate: 'تاريخ الانتهاء',
+    noTodos: 'لا توجد مهام لهذا الهدف.',
+    
+    // Kanban
+    kanban: 'كانبان',
+    
+    // Settings
+    language: 'اللغة',
+    theme: 'المظهر والألوان',
+    backup: 'النسخ الاحتياطي والبيانات',
+    exportData: 'تصدير البيانات',
+    importData: 'استيراد البيانات',
+    resetColors: 'إعادة تعيين الألوان',
+    
+    // About
+    version: 'الإصدار',
+    vision: 'رؤيتنا',
+    visionDesc: 'تم بناء "هدف" لأولئك الذين يجدون أدوات الإنتاجية القياسية بسيطة للغاية ومديري المشاريع التقليديين معقدين للغاية. نحن نركز على المرئيات عالية التباين وسير العمل الأساسي لإبقائك في حالة من التركيز التام.',
+    features: 'الميزات الرئيسية',
+    f1Title: 'أهداف ديناميكية',
+    f1Desc: 'قسم رؤيتك إلى مراحل قابلة للتحقيق.',
+    f2Title: 'نظام كانبان',
+    f2Desc: 'تصور تقدمك من خلال لوحة احترافية.',
+    f3Title: 'تنبيهات ذكية',
+    f3Desc: 'ابقَ على المسار الصحيح مع تنبيهات دقيقة.',
+    f4Title: 'سمات متميزة',
+    f4Desc: 'جرب الإنتاجية بأناقة عالية التباين.',
+    handcrafted: 'صنع يدويًا بتميز.',
+    copyright: 'هدف لأنظمة الإنتاجية',
+    
+    // Alerts
+    success: 'تم بنجاح',
+    error: 'خطأ',
+    backupExported: 'تم تصدير النسخة الاحتياطية بنجاح',
+    backupImported: 'تم استيراد النسخة الاحتياطية بنجاح',
+    invalidFormat: 'تنسيق ملف غير صالح',
+
+    // Validation
+    taskNameRequired: 'اسم المهمة مطلوب',
+    taskNameTooLong: 'يجب أن يكون اسم المهمة أقل من 100 حرف',
+    locationTooLong: 'يجب أن يكون الموقع أقل من 100 حرف',
+    notesTooLong: 'يجب أن تكون الملاحظات أقل من 500 حرف',
+  }
+};
+
+export type TranslationKeys = keyof typeof TRANSLATIONS.en;

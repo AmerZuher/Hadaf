@@ -4,6 +4,7 @@ import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/d
 import { NotificationConfig, RepeatConfig } from '../store/types';
 import { getGlobalStyles } from '../theme/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { useTranslations } from '../hooks/useTranslations';
 import { format } from 'date-fns';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -20,7 +21,9 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   onSave,
   initialConfig,
 }) => {
-  const theme = useSettingsStore().getActiveTheme();
+  const { getActiveTheme } = useSettingsStore();
+  const { t, isRTL } = useTranslations();
+  const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
   const [isActive, setIsActive] = useState(initialConfig?.isActive ?? false);
@@ -76,15 +79,15 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
         <View style={[styles.modalContent, { backgroundColor: theme.colors.backgroundMain }]}>
-          <View style={styles.header}>
-            <Text style={[globalStyles.subHeading, { fontSize: 18 }]}>Notification Settings</Text>
+          <View style={[styles.header, isRTL && { flexDirection: 'row-reverse' }]}>
+            <Text style={[globalStyles.subHeading, { fontSize: 18 }]}>{t('notificationSettings')}</Text>
             <TouchableOpacity onPress={onClose}>
               <MaterialCommunityIcons name="close" size={24} color={theme.colors.text} />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.row}>
-            <Text style={globalStyles.text}>Enable Notification</Text>
+          <View style={[styles.row, isRTL && { flexDirection: 'row-reverse' }]}>
+            <Text style={globalStyles.text}>{t('enableNotification')}</Text>
             <Switch
               value={isActive}
               onValueChange={setIsActive}
@@ -94,8 +97,8 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
 
           {isActive && (
             <>
-              <Text style={[globalStyles.text, styles.label]}>Date & Time</Text>
-              <View style={styles.datePickerContainer}>
+              <Text style={[globalStyles.text, styles.label, isRTL && { textAlign: 'right' }]}>{t('dateTime')}</Text>
+              <View style={[styles.datePickerContainer, isRTL && { flexDirection: 'row-reverse' }]}>
                 <TouchableOpacity style={[styles.dateBtn, { backgroundColor: theme.colors.cardStart }]} onPress={() => showMode('date')}>
                   <MaterialCommunityIcons name="calendar" size={20} color={theme.colors.text} />
                   <Text style={[globalStyles.text, { marginLeft: 8 }]}>{format(date, 'MMM d, yyyy')}</Text>
@@ -116,8 +119,8 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
                 />
               )}
 
-              <Text style={[globalStyles.text, styles.label]}>Repeat</Text>
-              <View style={styles.repeatContainer}>
+              <Text style={[globalStyles.text, styles.label, isRTL && { textAlign: 'right' }]}>{t('repeat')}</Text>
+              <View style={[styles.repeatContainer, isRTL && { flexDirection: 'row-reverse' }]}>
                 {(['none', 'daily', 'weekly'] as RepeatConfig[]).map((r) => (
                   <TouchableOpacity
                     key={r}
@@ -129,7 +132,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
                     onPress={() => setRepeat(r)}
                   >
                     <Text style={[globalStyles.text, { textTransform: 'capitalize', fontSize: 14 }]}>
-                      {r}
+                      {t(r as any)}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -141,7 +144,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
             style={[styles.saveBtn, { backgroundColor: theme.colors.done }]}
             onPress={handleSave}
           >
-            <Text style={[globalStyles.text, styles.saveText]}>Save Configuration</Text>
+            <Text style={[globalStyles.text, styles.saveText]}>{t('saveConfig')}</Text>
           </TouchableOpacity>
         </View>
       </View>

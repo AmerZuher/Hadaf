@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { getGlobalStyles } from '../theme/theme';
+import { useTranslations } from '../hooks/useTranslations';
 
 interface GlobalHeaderProps {
   title?: string;
@@ -14,7 +15,7 @@ interface GlobalHeaderProps {
 }
 
 export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
-  title = 'Hadaf',
+  title = '',
   showBack = false,
   showSettings = false,
   rightIcon,
@@ -22,23 +23,26 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
 }) => {
   const router = useRouter();
   const { getActiveTheme } = useSettingsStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
+  const displayTitle = title || t('appName');
+
   return (
-    <View style={styles.container}>
-      <View style={styles.leftSection}>
+    <View style={[styles.container, isRTL && { flexDirection: 'row-reverse' }]}>
+      <View style={[styles.leftSection, isRTL && { flexDirection: 'row-reverse' }]}>
         {showBack && (
           <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
-            <MaterialCommunityIcons name="arrow-left" size={24} color={theme.colors.text} />
+            <MaterialCommunityIcons name={isRTL ? "arrow-right" : "arrow-left"} size={24} color={theme.colors.text} />
           </TouchableOpacity>
         )}
         {!showBack && (
           <TouchableOpacity onPress={() => router.push('/about')} activeOpacity={0.7}>
-            <Image source={require('../assets/icon.png')} style={{ width: 32, height: 32, marginRight: 8, borderRadius: 8 }} />
+            <Image source={require('../assets/icon.png')} style={[{ width: 32, height: 32, borderRadius: 8 }, isRTL ? { marginLeft: 12 } : { marginRight: 12 }]} />
           </TouchableOpacity>
         )}
-        <Text style={globalStyles.heading}>{title}</Text>
+        <Text style={globalStyles.heading}>{displayTitle}</Text>
       </View>
       
       <View style={styles.rightSection}>

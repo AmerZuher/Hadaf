@@ -1,28 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Image, Platform } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { getGlobalStyles } from '../theme/theme';
-import { LinearGradient } from 'expo-linear-gradient';
 import { GlobalHeader } from '../components/GlobalHeader';
+import { APP_CONFIG } from '../constants/Config';
+import { useTranslations } from '../hooks/useTranslations';
 
 const AboutScreen = () => {
   const router = useRouter();
   const { getActiveTheme } = useSettingsStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
 
   const features = [
-    { icon: 'target', title: 'Dynamic Objectives', desc: 'Break down your vision into achievable milestones.' },
-    { icon: 'view-column-outline', title: 'Kanban Flow', desc: 'Visualize your progress with an industrial-grade board.' },
-    { icon: 'bell-ring-outline', title: 'Smart Alerts', desc: 'Stay on track with precisely timed notifications.' },
-    { icon: 'palette-outline', title: 'Premium Themes', desc: 'Experience productivity in high-contrast elegance.' },
+    { icon: 'target', title: t('f1Title'), desc: t('f1Desc') },
+    { icon: 'view-column-outline', title: t('f2Title'), desc: t('f2Desc') },
+    { icon: 'bell-ring-outline', title: t('f3Title'), desc: t('f3Desc') },
+    { icon: 'palette-outline', title: t('f4Title'), desc: t('f4Desc') },
   ];
 
   return (
     <View style={globalStyles.container}>
-      <GlobalHeader title="About Hadaf" showBack />
+      <GlobalHeader title={t('about')} showBack />
       
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Hero Section */}
@@ -30,42 +32,42 @@ const AboutScreen = () => {
           <View style={styles.logoBg}>
             <Image source={require('../assets/icon.png')} style={{ width: 120, height: 120, borderRadius: 30 }} />
           </View>
-          <Text style={[globalStyles.heading, styles.appName]}>HADAF</Text>
-          <Text style={[globalStyles.text, styles.version]}>Version 2.0.0 (Cosmic Edition)</Text>
-          <Text style={[globalStyles.text, styles.tagline]}>Your vision, structured for success.</Text>
+          <Text style={[globalStyles.heading, styles.appName]}>{APP_CONFIG.NAME.toUpperCase()}</Text>
+          <Text style={[globalStyles.text, styles.version]}>{t('version')} {APP_CONFIG.VERSION}</Text>
+          <Text style={[globalStyles.text, styles.tagline]}>{t('visionDesc')}</Text>
         </View>
 
         {/* Vision Section */}
         <View style={[styles.section, { backgroundColor: 'rgba(255,255,255,0.02)' }]}>
-          <Text style={[globalStyles.subHeading, styles.sectionTitle]}>Our Vision</Text>
-          <Text style={[globalStyles.text, styles.sectionDesc]}>
-            Hadaf (Target) was built for those who find standard productivity tools too simple and traditional project managers too complex. We focus on high-contrast visuals and essential workflows to keep you in the flow state.
+          <Text style={[globalStyles.subHeading, styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t('vision')}</Text>
+          <Text style={[globalStyles.text, styles.sectionDesc, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('visionDesc')}
           </Text>
         </View>
 
         {/* Features Grid */}
-        <View style={styles.featuresGrid}>
+        <View style={[styles.featuresGrid, isRTL && { flexDirection: 'row-reverse' }]}>
           {features.map((f, i) => (
-            <View key={i} style={[styles.featureCard, { backgroundColor: theme.colors.cardStart }]}>
+            <View key={i} style={[styles.featureCard, { backgroundColor: theme.colors.cardStart, alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
               <MaterialCommunityIcons name={f.icon as any} size={28} color={theme.colors.done} />
-              <Text style={[globalStyles.subHeading, styles.featureTitle]}>{f.title}</Text>
-              <Text style={[globalStyles.text, styles.featureDesc]}>{f.desc}</Text>
+              <Text style={[globalStyles.subHeading, styles.featureTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{f.title}</Text>
+              <Text style={[globalStyles.text, styles.featureDesc, { textAlign: isRTL ? 'right' : 'left' }]}>{f.desc}</Text>
             </View>
           ))}
         </View>
 
         {/* Socials / Footer */}
         <View style={styles.footer}>
-          <Text style={[globalStyles.text, { opacity: 0.5, marginBottom: 16 }]}>Handcrafted for excellence.</Text>
+          <Text style={[globalStyles.text, { opacity: 0.5, marginBottom: 16 }]}>{t('handcrafted')}</Text>
           <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialIcon} onPress={() => Linking.openURL('https://github.com/AmerZuher')}>
+            <TouchableOpacity style={styles.socialIcon} onPress={() => Linking.openURL(APP_CONFIG.AUTHOR.GITHUB)}>
               <MaterialCommunityIcons name="github" size={24} color={theme.colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialIcon} onPress={() => Linking.openURL('https://www.linkedin.com/in/amer-zuher-alriyahi')}>
+            <TouchableOpacity style={styles.socialIcon} onPress={() => Linking.openURL(APP_CONFIG.AUTHOR.LINKEDIN)}>
               <MaterialCommunityIcons name="linkedin" size={24} color={theme.colors.text} />
             </TouchableOpacity>
           </View>
-          <Text style={[globalStyles.text, styles.copyright]}>© 2026 Hadaf Productivity Systems</Text>
+          <Text style={[globalStyles.text, styles.copyright]}>© 2026 {t('copyright')}</Text>
         </View>
       </ScrollView>
     </View>

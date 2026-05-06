@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { useTranslations } from '../hooks/useTranslations';
 
 interface FilterOption {
   id: string;
@@ -26,17 +27,18 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSortSelect,
 }) => {
   const { getActiveTheme } = useSettingsStore();
+  const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
 
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   const [isSortModalVisible, setIsSortModalVisible] = useState(false);
 
-  const activeFilterLabel = filterOptions.find(o => o.id === activeFilter)?.label || 'Filter';
-  const activeSortLabel = sortOptions.find(o => o.id === activeSort)?.label || 'Sort';
+  const activeFilterLabel = filterOptions.find(o => o.id === activeFilter)?.label || t('filterBy');
+  const activeSortLabel = sortOptions.find(o => o.id === activeSort)?.label || t('sortBy');
 
   return (
     <View style={styles.container}>
-      <View style={styles.buttonsContainer}>
+      <View style={[styles.buttonsContainer, isRTL && { flexDirection: 'row-reverse' }]}>
         <TouchableOpacity 
           style={styles.dropdownBtn}
           onPress={() => setIsFilterModalVisible(true)}
@@ -60,13 +62,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <Modal visible={isFilterModalVisible} transparent animationType="fade">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsFilterModalVisible(false)}>
           <View style={[styles.modalContent, { backgroundColor: theme.colors.cardStart }]}>
-            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>Filter By</Text>
+            <Text style={[styles.modalTitle, { color: theme.colors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('filterBy')}</Text>
             <FlatList
               data={filterOptions}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={[styles.modalOption, activeFilter === item.id && { backgroundColor: 'rgba(255,255,255,0.1)' }]}
+                  style={[styles.modalOption, { flexDirection: isRTL ? 'row-reverse' : 'row' }, activeFilter === item.id && { backgroundColor: 'rgba(255,255,255,0.1)' }]}
                   onPress={() => {
                     onFilterSelect(item.id);
                     setIsFilterModalVisible(false);
@@ -85,13 +87,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <Modal visible={isSortModalVisible} transparent animationType="fade">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsSortModalVisible(false)}>
           <View style={[styles.modalContent, { backgroundColor: theme.colors.cardStart }]}>
-            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>Sort By</Text>
+            <Text style={[styles.modalTitle, { color: theme.colors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('sortBy')}</Text>
             <FlatList
               data={sortOptions}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={[styles.modalOption, activeSort === item.id && { backgroundColor: 'rgba(255,255,255,0.1)' }]}
+                  style={[styles.modalOption, { flexDirection: isRTL ? 'row-reverse' : 'row' }, activeSort === item.id && { backgroundColor: 'rgba(255,255,255,0.1)' }]}
                   onPress={() => {
                     onSortSelect(item.id);
                     setIsSortModalVisible(false);
