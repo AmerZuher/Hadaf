@@ -7,6 +7,31 @@ import * as IntentLauncher from 'expo-intent-launcher';
 import { Alert, Platform } from 'react-native';
 import { FileAttachment } from '../store/types';
 
+const ATTACHMENTS_DIR = `${FileSystem.documentDirectory}hadaf-attachments/`;
+
+/** Ensure the base attachments directory exists */
+const ensureDir = async (dir: string) => {
+  const info = await FileSystem.getInfoAsync(dir);
+  if (!info.exists) {
+    await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+  }
+};
+
+/** Save a file to the persistent structured path: hadaf-attachments/{todoId}/{fileName} */
+export const saveAttachment = async (sourceUri: string, todoId: string, fileName: string): Promise<string> => {
+  try {
+    const targetDir = `${ATTACHMENTS_DIR}${todoId}/`;
+    await ensureDir(targetDir);
+    const targetUri = `${targetDir}${fileName}`;
+    await FileSystem.copyAsync({ from: sourceUri, to: targetUri });
+    return targetUri;
+  } catch (error) {
+    console.error('Failed to save attachment:', error);
+    throw new Error('Failed to save attachment to persistent storage');
+  }
+};
+
+
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 
 /** Map a MIME type to a MaterialCommunityIcons name */
@@ -63,12 +88,14 @@ export const pickFile = async (): Promise<FileAttachment | null> => {
       return null;
     }
 
-    return makeAttachment(
-      asset.name,
-      asset.uri,
-      asset.mimeType ?? 'application/octet-stream',
+    return {
+      id: Math.random().toString(36).substring(2, 9),
+      name: asset.name,
+      uri: asset.uri, // This will be moved to permanent storage by the store/caller
+      mimeType: asset.mimeType ?? 'application/octet-stream',
       size,
-    );
+      addedAt: new Date().toISOString(),
+    };
   } catch {
     return null;
   }

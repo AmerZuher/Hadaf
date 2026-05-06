@@ -8,6 +8,7 @@ export const TRANSLATIONS = {
     back: 'Back',
     save: 'Save',
     cancel: 'Cancel',
+    confirm: 'Confirm',
     delete: 'Delete',
     edit: 'Edit',
     done: 'Done',
@@ -30,6 +31,30 @@ export const TRANSLATIONS = {
     createObjective: 'Create Objective',
     progress: 'Progress',
     started: 'Started',
+    
+    // Objective Management
+    exportObjective: 'Export Objective',
+    importObjective: 'Import Objective',
+    createNewObjective: 'Create New',
+    importObjectiveFile: 'Import from File',
+    importPreview: 'Import Preview',
+    importConfirm: 'Import',
+    saveToDevice: 'Save to Device',
+    exportShared: 'Opening share sheet...',
+    exportSaved: 'File saved to storage',
+    selectExportMode: 'Choose Export Mode',
+    shareZip: 'Share Package',
+
+    objectiveTodos: 'Tasks',
+    objectiveAttachments: 'Attachments',
+    deleteObjective: 'Delete Objective',
+    deleteObjectiveConfirm: 'Delete Objective?',
+    deleteObjectiveMsg: 'This will delete the objective and all its related tasks and attachments. This action cannot be undone.',
+    importingFile: 'Importing file...',
+    importSuccess: 'Objective imported successfully!',
+    invalidZip: 'Invalid ZIP file',
+    missingDataJson: 'Missing data.json in package',
+
     
     // Objective Detail
     todosTab: 'To-Dos',
@@ -162,6 +187,7 @@ export const TRANSLATIONS = {
     back: 'رجوع',
     save: 'حفظ',
     cancel: 'إلغاء',
+    confirm: 'تأكيد',
     delete: 'حذف',
     edit: 'تعديل',
     done: 'مكتمل',
@@ -184,6 +210,30 @@ export const TRANSLATIONS = {
     createObjective: 'إنشاء هدف',
     progress: 'التقدم',
     started: 'بدأ في',
+
+    // Objective Management
+    exportObjective: 'تصدير الهدف',
+    importObjective: 'استيراد الهدف',
+    createNewObjective: 'إنشاء جديد',
+    importObjectiveFile: 'استيراد من ملف',
+    importPreview: 'معاينة الاستيراد',
+    importConfirm: 'استيراد',
+    saveToDevice: 'حفظ في الجهاز',
+    exportShared: 'جاري فتح قائمة المشاركة...',
+    exportSaved: 'تم حفظ الملف في الجهاز',
+    selectExportMode: 'اختر طريقة التصدير',
+    shareZip: 'مشاركة الحزمة',
+
+    objectiveTodos: 'المهام',
+    objectiveAttachments: 'المرفقات',
+    deleteObjective: 'حذف الهدف',
+    deleteObjectiveConfirm: 'حذف الهدف؟',
+    deleteObjectiveMsg: 'سيؤدي هذا إلى حذف الهدف وجميع المهام والمرفقات المتعلقة به. لا يمكن التراجع عن هذا الإجراء.',
+    importingFile: 'جاري الاستيراد...',
+    importSuccess: 'تم استيراد الهدف بنجاح!',
+    invalidZip: 'ملف ZIP غير صالح',
+    missingDataJson: 'ملف data.json مفقود',
+
     
     // Objective Detail
     todosTab: 'المهام',

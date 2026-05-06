@@ -5,34 +5,35 @@ import { useSettingsStore } from '../../../store/useSettingsStore';
 import { getGlobalStyles } from '../../../theme/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslations } from '../../../hooks/useTranslations';
+import { ConfirmModal } from '../../../components/ConfirmModal';
+import { useState } from 'react';
+
 
 export default function LanguageScreen() {
   const { language, setLanguage, getActiveTheme } = useSettingsStore();
   const { t } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingLang, setPendingLang] = useState<'en' | 'ar' | null>(null);
+
 
   const handleLanguageSelect = (lang: 'en' | 'ar') => {
     if (lang === language) return;
 
     if (lang === 'ar' || language === 'ar') {
-      // RTL switch usually requires a reload in RN
-      Alert.alert(
-        t('success'),
-        t('restartMsg'),
-        [
-          { text: t('cancel'), style: 'cancel' },
-          { 
-            text: 'OK', 
-            onPress: () => {
-              setLanguage(lang);
-            } 
-          }
-        ]
-      );
+      setPendingLang(lang);
+      setShowConfirm(true);
     } else {
       setLanguage(lang);
     }
+  };
+
+  const confirmLanguageChange = () => {
+    if (pendingLang) {
+      setLanguage(pendingLang);
+    }
+    setShowConfirm(false);
   };
 
   return (
@@ -62,7 +63,17 @@ export default function LanguageScreen() {
           </Text>
         </View>
       </View>
+
+      <ConfirmModal
+        visible={showConfirm}
+        title={t('success')}
+        message={t('restartMsg')}
+        onConfirm={confirmLanguageChange}
+        onCancel={() => setShowConfirm(false)}
+        icon="translate"
+      />
     </View>
+
   );
 }
 

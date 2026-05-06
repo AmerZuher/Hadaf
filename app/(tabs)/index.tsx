@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Text, ScrollView } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Text, ScrollView, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useObjectiveStore } from '../../store/useObjectiveStore';
 import { getGlobalStyles } from '../../theme/theme';
@@ -11,10 +12,15 @@ import { ObjectiveCard } from '../../components/ObjectiveCard';
 import { CategorySelector } from '../../components/CategorySelector';
 import { useCategoryStore } from '../../store/useCategoryStore';
 import { useTranslations } from '../../hooks/useTranslations';
+import { ImportPreviewModal } from '../../components/ImportPreviewModal';
+import * as DocumentPicker from 'expo-document-picker';
+import { parseImport, confirmImport, ImportPreview } from '../../utils/objectiveExport';
+import Toast from 'react-native-toast-message';
+
 
 export default function HomeScreen() {
   const { getActiveTheme } = useSettingsStore();
-  const { objectives, addObjective } = useObjectiveStore();
+  const { objectives, addObjective, importObjective } = useObjectiveStore();
   const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
@@ -24,8 +30,13 @@ export default function HomeScreen() {
   const [activeSort, setActiveSort] = useState('start');
   
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
+  
   const [newObjectiveName, setNewObjectiveName] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('work'); // Default to first category
+
 
   const { getAllCategories } = useCategoryStore();
   const categories = getAllCategories();
@@ -38,6 +49,55 @@ export default function HomeScreen() {
       setIsModalVisible(false);
     }
   };
+
+  const handlePickImport = async () => {
+    setIsMenuVisible(false);
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/zip',
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets.length > 0) {
+        const preview = await parseImport(result.assets[0].uri);
+        setImportPreview(preview);
+      }
+    } catch (error) {
+      console.error('Pick import failed:', error);
+      Toast.show({
+        type: 'error',
+        text1: t('error'),
+        text2: t('invalidZip'),
+      });
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!importPreview) return;
+    setIsImporting(true);
+    try {
+      const existingNames = objectives.map(o => o.name);
+      await confirmImport(importPreview, existingNames, (obj, todos) => {
+        importObjective(obj, todos);
+      });
+      setImportPreview(null);
+      Toast.show({
+        type: 'success',
+        text1: t('success'),
+        text2: t('importSuccess'),
+      });
+    } catch (error) {
+      console.error('Confirm import failed:', error);
+      Toast.show({
+        type: 'error',
+        text1: t('error'),
+        text2: t('importFailed'),
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
 
   let displayedObjectives = [...objectives];
   if (activeFilter !== 'all') {
@@ -105,9 +165,53 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: theme.colors.text }]}
         onPress={() => setIsModalVisible(true)}
+        onLongPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          setIsMenuVisible(true);
+        }}
+        activeOpacity={0.7}
       >
         <MaterialCommunityIcons name="plus" size={32} color={theme.colors.backgroundMain} />
       </TouchableOpacity>
+
+      {/* FAB Menu */}
+      <Modal visible={isMenuVisible} transparent animationType="fade" onRequestClose={() => setIsMenuVisible(false)}>
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setIsMenuVisible(false)}
+        >
+          <View style={[styles.menuContent, { backgroundColor: theme.colors.cardStart }]}>
+            <TouchableOpacity 
+              style={[styles.menuItem, isRTL && { flexDirection: 'row-reverse' }]}
+              onPress={() => { setIsMenuVisible(false); setIsModalVisible(true); }}
+            >
+              <MaterialCommunityIcons name="plus-circle-outline" size={24} color={theme.colors.text} />
+              <Text style={[styles.menuText, { color: theme.colors.text }]}>{t('createNewObjective')}</Text>
+            </TouchableOpacity>
+            
+            <View style={[styles.menuSeparator, { backgroundColor: 'rgba(255,255,255,0.05)' }]} />
+            
+            <TouchableOpacity 
+              style={[styles.menuItem, isRTL && { flexDirection: 'row-reverse' }]}
+              onPress={handlePickImport}
+            >
+              <MaterialCommunityIcons name="file-import-outline" size={24} color={theme.colors.text} />
+              <Text style={[styles.menuText, { color: theme.colors.text }]}>{t('importObjectiveFile')}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Import Preview Modal */}
+      <ImportPreviewModal
+        visible={!!importPreview}
+        preview={importPreview}
+        onConfirm={handleConfirmImport}
+        onCancel={() => setImportPreview(null)}
+        isLoading={isImporting}
+      />
+
 
       <Modal
         visible={isModalVisible}
@@ -213,4 +317,27 @@ const styles = StyleSheet.create({
     fontFamily: 'Syne_600SemiBold',
     fontSize: 16,
   },
+  menuContent: {
+    marginBottom: 100,
+    marginHorizontal: 30,
+    borderRadius: 24,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    overflow: 'hidden',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  menuText: {
+    fontFamily: 'Syne_600SemiBold',
+    fontSize: 16,
+  },
+  menuSeparator: {
+    height: 1,
+  },
 });
+

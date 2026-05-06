@@ -9,6 +9,8 @@ import { getGlobalStyles } from '../theme/theme';
 import { format } from 'date-fns';
 import { Swipeable } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ConfirmModal } from './ConfirmModal';
+
 import { AttachmentList } from './AttachmentList';
 
 interface TodoCardProps {
@@ -72,19 +74,52 @@ export const TodoCard: React.FC<TodoCardProps> = ({
         : theme.colors.pending;
 
   const [isNoteModalVisible, setIsNoteModalVisible] = React.useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = React.useState(false);
 
-  const renderRightActions = () => {
+
+  const renderRightActions = (
+    progress: Animated.AnimatedInterpolation<number>,
+    dragX: Animated.AnimatedInterpolation<number>
+  ) => {
+    const scaleNotify = progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.7, 1],
+      extrapolate: 'clamp',
+    });
+    const scaleArchive = progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.5, 1],
+      extrapolate: 'clamp',
+    });
+    const scaleDelete = progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.3, 1],
+      extrapolate: 'clamp',
+    });
+    const opacity = progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 1],
+      extrapolate: 'clamp',
+    });
+
     return (
       <View style={styles.rightActionsContainer}>
-        <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onNotify(item.id); }} style={[styles.actionBtn, { backgroundColor: '#3b82f6' }]}>
-          <MaterialCommunityIcons name="bell-outline" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onArchive(item.id); }} style={[styles.actionBtn, { backgroundColor: '#f59e0b' }]}>
-          <MaterialCommunityIcons name={item.isArchived ? "backup-restore" : "archive-outline"} size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onDelete(item.id); }} style={[styles.actionBtn, { backgroundColor: theme.colors.pending }]}>
+        <Animated.View style={[styles.actionBtnWrapper, { opacity, transform: [{ scale: scaleNotify }] }]}>
+          <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onNotify(item.id); }} style={[styles.actionBtn, { backgroundColor: '#3b82f6' }]}>
+            <MaterialCommunityIcons name="bell-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View style={[styles.actionBtnWrapper, { opacity, transform: [{ scale: scaleArchive }] }]}>
+          <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onArchive(item.id); }} style={[styles.actionBtn, { backgroundColor: '#f59e0b' }]}>
+            <MaterialCommunityIcons name={item.isArchived ? "backup-restore" : "archive-outline"} size={24} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View style={[styles.actionBtnWrapper, { opacity, transform: [{ scale: scaleDelete }] }]}>
+          <TouchableOpacity onPress={() => { setIsDeleteModalVisible(true); }} style={[styles.actionBtn, { backgroundColor: theme.colors.pending }]}>
           <MaterialCommunityIcons name="trash-can-outline" size={24} color="#fff" />
         </TouchableOpacity>
+
+        </Animated.View>
       </View>
     );
   };
@@ -228,7 +263,22 @@ export const TodoCard: React.FC<TodoCardProps> = ({
           </View>
         </View>
       </Modal>
+      <ConfirmModal
+        visible={isDeleteModalVisible}
+        title={t('delete')}
+        message={t('deleteObjectiveMsg')} // Reuse or generic task delete msg
+        confirmText={t('delete')}
+        onConfirm={() => {
+          setIsDeleteModalVisible(false);
+          swipeableRef.current?.close();
+          onDelete(item.id);
+        }}
+        onCancel={() => setIsDeleteModalVisible(false)}
+        type="danger"
+        icon="trash-can-outline"
+      />
     </Swipeable>
+
   );
 };
 
@@ -293,6 +343,9 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_500Medium',
     opacity: 0.8,
   },
+  notesWrapper: {
+    width: '100%',
+  },
   notesPill: {
     flexDirection: 'row',
     gap: 10,
@@ -355,14 +408,18 @@ const styles = StyleSheet.create({
   rightActionsContainer: {
     flexDirection: 'row',
     marginBottom: 16,
-    paddingLeft: 4,
-    width: 180,
+    paddingLeft: 8,
+    width: 220,
+  },
+  actionBtnWrapper: {
+    flex: 1,
+    paddingVertical: 2,
   },
   actionBtn: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 20,
     marginHorizontal: 4,
   },
   modalOverlay: {

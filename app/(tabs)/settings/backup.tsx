@@ -3,11 +3,22 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { GlobalHeader } from '../../../components/GlobalHeader';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 import { useObjectiveStore } from '../../../store/useObjectiveStore';
+import { Objective, Todo } from '../../../store/types';
 import { getGlobalStyles } from '../../../theme/theme';
+
 import * as FileSystem from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslations } from '../../../hooks/useTranslations';
+import { ConfirmModal } from '../../../components/ConfirmModal';
+import { generateFullBackupZip, parseFullImport, confirmFullImport } from '../../../utils/objectiveExport';
+import { useState } from 'react';
+import { Platform } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import Toast from 'react-native-toast-message';
+
+
+
 
 export default function BackupScreen() {
   const { getActiveTheme } = useSettingsStore();
@@ -15,39 +26,103 @@ export default function BackupScreen() {
   const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
+  const [modalConfig, setModalConfig] = useState<{ 
+    visible: boolean; 
+    title: string; 
+    message: string; 
+    type: 'info' | 'danger' | 'warning'; 
+    icon: any;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+  } | null>(null);
 
-  const handleExport = async () => {
+
+
+  const handleExport = async (mode: 'share' | 'save') => {
+    setModalConfig(null);
     try {
-      const data = { objectives, todos };
-      // @ts-ignore - Expo types issue in current SDK version
-      const fileUri = `${FileSystem.documentDirectory}hadaf_backup.json`;
-      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(data, null, 2));
-      Alert.alert(t('success'), `${t('backupSaved')} ${fileUri}`);
+      const zipUri = await generateFullBackupZip(objectives, todos);
+      
+      if (mode === 'save') {
+        if (Platform.OS === 'android') {
+          const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+          if (permissions.granted) {
+            const base64 = await FileSystem.readAsStringAsync(zipUri, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            const fileName = `hadaf_full_backup_${Date.now()}.zip`;
+            const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+              permissions.directoryUri,
+              fileName,
+              'application/zip'
+            );
+            await FileSystem.writeAsStringAsync(fileUri, base64, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            Toast.show({ 
+              type: 'success', 
+              text1: t('success'), 
+              text2: t('exportSaved') 
+            });
+          }
+        } else {
+          // iOS "Save to Files" via Share Sheet
+          await Sharing.shareAsync(zipUri);
+        }
+      } else {
+        await Sharing.shareAsync(zipUri);
+      }
+      
+      // Cleanup cache
+      await FileSystem.deleteAsync(zipUri, { idempotent: true });
     } catch (e) {
-      Alert.alert(t('error'), t('exportFailed'));
+      Toast.show({ type: 'error', text1: t('error'), text2: t('exportFailed') });
     }
   };
 
+
+
+
   const handleImport = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({ type: ['application/json', 'text/plain', 'text/csv'] });
+      const result = await DocumentPicker.getDocumentAsync({ 
+        type: ['application/zip', 'application/json'] 
+      });
       if (result.canceled) return;
       
       const file = result.assets[0];
-      const content = await FileSystem.readAsStringAsync(file.uri);
-      const parsed = JSON.parse(content);
       
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.objectives && parsed.todos) {
-        useObjectiveStore.setState({ objectives: parsed.objectives, todos: parsed.todos });
-        Alert.alert(t('success'), t('fullBackupRestored'));
-      } else if (Array.isArray(parsed)) {
-        importTodos(parsed);
-        Alert.alert(t('success'), t('todosImported'));
+      if (file.name.endsWith('.zip')) {
+        const fullData = await parseFullImport(file.uri);
+        setModalConfig({
+          visible: true,
+          title: t('importPreview'),
+          message: `${fullData.objectives.length} ${t('objectives')}, ${fullData.todos.length} ${t('objectiveTodos')}`,
+          type: 'info',
+          icon: 'zip-box',
+          confirmText: t('importConfirm'),
+          onConfirm: async () => {
+            setModalConfig(null);
+            await confirmFullImport(fullData, file.uri, objectives, (objs: Objective[], ts: Todo[]) => {
+              useObjectiveStore.getState().appendBackup(objs, ts);
+            });
+            Toast.show({ type: 'success', text1: t('success'), text2: t('importSuccess') });
+          }
+
+        });
       } else {
-        Alert.alert(t('invalidFormat'), t('invalidFormat'));
+        // Old JSON logic (Fallback)
+        const content = await FileSystem.readAsStringAsync(file.uri);
+        const parsed = JSON.parse(content);
+        if (parsed?.objectives && parsed?.todos) {
+          useObjectiveStore.getState().appendBackup(parsed.objectives, parsed.todos);
+          Toast.show({ type: 'success', text1: t('success'), text2: t('importSuccess') });
+        }
       }
     } catch (e) {
-      Alert.alert(t('error'), t('importFailed'));
+      Toast.show({ type: 'error', text1: t('error'), text2: t('importFailed') });
     }
   };
 
@@ -58,8 +133,20 @@ export default function BackupScreen() {
         
         <TouchableOpacity 
           style={[styles.btn, { backgroundColor: theme.colors.cardStart, flexDirection: isRTL ? 'row-reverse' : 'row' }]} 
-          onPress={handleExport}
+          onPress={() => setModalConfig({
+            visible: true,
+            title: t('selectExportMode'),
+            message: t('exportDesc'),
+            type: 'info',
+            icon: 'export',
+            confirmText: t('saveToDevice'),
+            cancelText: t('shareZip'),
+            onConfirm: () => handleExport('save'),
+            onCancel: () => handleExport('share')
+          })}
+
         >
+
           <View style={[styles.btnIcon, isRTL ? { marginLeft: 0, marginRight: 16 } : { marginRight: 16 }]}>
             <MaterialCommunityIcons name="export" size={24} color={theme.colors.done} />
           </View>
@@ -94,8 +181,21 @@ export default function BackupScreen() {
             {`[\n  {\n    "name": "Design wireframes",\n    "status": "pending",\n    "startDate": "2025-06-01",\n    "endDate": "2025-06-07"\n  }\n]`}
           </Text>
         </View>
-
       </View>
+      {modalConfig ? (
+        <ConfirmModal
+          visible={modalConfig.visible}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          onConfirm={modalConfig.onConfirm || (() => setModalConfig(null))}
+          onCancel={modalConfig.onCancel || (() => setModalConfig(null))}
+          type={modalConfig.type}
+          icon={modalConfig.icon}
+          confirmText={modalConfig.confirmText || "OK"}
+          cancelText={modalConfig.cancelText}
+        />
+
+      ) : null}
     </View>
   );
 }
