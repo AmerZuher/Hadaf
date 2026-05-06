@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Text } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Text, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useObjectiveStore } from '../../store/useObjectiveStore';
@@ -117,7 +117,7 @@ export default function HomeScreen() {
       >
         <View style={styles.modalOverlay}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={[styles.modalContent, { backgroundColor: theme.colors.cardStart }]}
           >
             <View style={[styles.modalHeader, isRTL && { flexDirection: 'row-reverse' }]}>
@@ -127,26 +127,28 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            <TextInput
-              style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
-              placeholder={t('objectivePlaceholder')}
-              placeholderTextColor="rgba(255,255,255,0.4)"
-              value={newObjectiveName}
-              onChangeText={setNewObjectiveName}
-              autoFocus
-            />
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <TextInput
+                style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
+                placeholder={t('objectivePlaceholder')}
+                placeholderTextColor="rgba(255,255,255,0.4)"
+                value={newObjectiveName}
+                onChangeText={setNewObjectiveName}
+                autoFocus
+              />
 
-            <CategorySelector 
-              selectedCategoryId={selectedCategoryId} 
-              onSelectCategory={setSelectedCategoryId} 
-            />
+              <CategorySelector 
+                selectedCategoryId={selectedCategoryId} 
+                onSelectCategory={setSelectedCategoryId} 
+              />
 
-            <TouchableOpacity
-              style={[styles.createBtn, { backgroundColor: theme.colors.text }]}
-              onPress={handleCreateObjective}
-            >
-              <Text style={[styles.createBtnText, { color: theme.colors.backgroundMain }]}>{t('createObjective')}</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.createBtn, { backgroundColor: theme.colors.text }]}
+                onPress={handleCreateObjective}
+              >
+                <Text style={[styles.createBtnText, { color: theme.colors.backgroundMain }]}>{t('createObjective')}</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </KeyboardAvoidingView>
         </View>
       </Modal>

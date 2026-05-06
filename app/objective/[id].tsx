@@ -331,7 +331,7 @@ const ObjectiveScreen = () => {
       >
         <View style={styles.modalOverlay}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={[styles.modalContent, { backgroundColor: theme.colors.cardStart }]}
           >
             <View style={[styles.modalHeader, isRTL && { flexDirection: 'row-reverse' }]}>
@@ -341,7 +341,7 @@ const ObjectiveScreen = () => {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ maxHeight: '80%' }}>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ maxHeight: '80%' }}>
               <TextInput
                 style={[styles.input, formErrors.name && styles.inputError, { color: theme.colors.text, borderColor: formErrors.name ? theme.colors.pending : 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
                 placeholder={t('todoPlaceholder')}
