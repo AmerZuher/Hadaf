@@ -1,92 +1,77 @@
-# Hadaf (Target) 🎯
+# Hadaf (Target) 🎯 
+### The Universal Standard for Goal Achievement & Objective Sharing
 
-Hadaf is a premium, high-contrast productivity and objective tracking application built with React Native and Expo. It is designed for those who find standard productivity tools too simple and traditional project managers too complex. Hadaf focuses on sleek visuals, essential workflows, and keeping you in the flow state.
-
----
-
-## 📸 Screen Gallery
-
-### 1. Objectives Dashboard
-The heart of Hadaf. View your long-term goals and progress in a clean, high-contrast interface.
-
-<p align="center">
-  <img src="./resources/ObjectivesScreen.png" width="350" alt="Objectives Dashboard" />
-</p>
-
-### 2. Grid View Presentation
-A visual-first masonry layout for your objectives, perfect for a bird's-eye view of your categories and overall progress.
-
-<p align="center">
-  <img src="./resources/ObjectivesGridView.png" width="350" alt="Objectives Grid" />
-</p>
-
-### 3. List View Presentation
-A streamlined, detail-oriented list of your objectives, focusing on dates and upcoming milestones.
-
-<p align="center">
-  <img src="./resources/ObjectivesListView.png" width="350" alt="Objectives List" />
-</p>
-
-### 4. Kanban To-Do Management
-A professional-grade Kanban board for each objective. Track your tasks through "Pending", "In Progress", and "Done" columns with smooth horizontal scrolling.
-
-<p align="center">
-  <img src="./resources/ToDosScreen.png" width="350" alt="Kanban Board" />
-</p>
-
-### 5. Premium Themes & Customization
-Express your productivity style with built-in high-contrast themes like Cosmic, Nebula, and Aurora. You can also customize status colors (Done, In-Progress, Pending) to match your visual preference.
-
-<p align="center">
-  <img src="./resources/Themes&ColorsScreen.png" width="350" alt="Themes & Customization" />
-</p>
+Hadaf is a premium, high-contrast productivity ecosystem built to bridge the gap between inspiration and execution. It is designed for those who find standard todo lists too shallow and traditional project managers too clinical.
 
 ---
 
-## 🚀 Features
+## 🌟 The Vision: A Standard for Sharing Success
 
-*   **Dynamic Objectives:** Break down your vision into achievable milestones.
-*   **Real Kanban Flow:** Visualize your task pipeline with a functional, status-based board.
-*   **Smart Alerts:** Stay on track with precisely timed local notifications for your tasks.
-*   **Multiple Presentation Modes:** Toggle between Featured, Grid, or Minimalist modes for your dashboard.
-*   **High-Contrast Design:** Experience productivity in high-contrast elegance with curated cosmic color palettes.
-*   **Privacy First:** All data is stored locally on your device using high-performance MMKV storage.
+Imagine a world where you don't just "read" a guide on how to launch a startup or "watch" a video on a fitness transformation—you **import** it.
+
+Hadaf is building the **Universal Portability Layer for Human Goals**. By allowing users to package complex objectives, tiered tasks, instructions, and physical attachments into a single, portable `.hadaf` (ZIP) format, we are creating a standard where:
+
+*   **Experts** can share precise blueprints for success.
+*   **Teams** can sync complex project structures instantly.
+*   **Users** can discover and "live" the instructions of others with zero setup time.
+
+**If it's worth doing, it's worth sharing as a Hadaf Objective.**
 
 ---
 
-## ⚡ Quick Demo Setup
+## 📸 Premium Interface Gallery
 
-To see exactly how Hadaf looks and feels on your mobile device without manually adding data:
+### 1. The Power of Portability
+Hadaf allows you to export your entire objective lifecycle or import others' wisdom with a single tap. Save to your device or share directly across any platform.
 
-1.  **Open Hadaf** on your mobile device (via Expo Go).
-2.  Navigate to **Settings** (top right cog icon).
-3.  Go to **Backup & Data**.
-4.  Tap **Import Data**.
-5.  Select the `store/data.json` file from this repository.
-6.  **Boom!** Your dashboard will instantly populate with realistic objectives and tasks.
+| Exporting Blueprints | Importing Wisdom |
+| :---: | :---: |
+| <img src="./resources/ExportObjectiveMode.png" width="300" /> | <img src="./resources/ImportObjectivesModes.png" width="300" /> |
+
+### 2. High-Contrast Execution
+Experience your workflow in stunning glassmorphism. Our UI is designed to keep you focused, with status-aware colors and a secondary "frosted glass" layer for sub-details.
+
+| Objectives Dashboard | Kanban Task Flow |
+| :---: | :---: |
+| <img src="./resources/ObjectivesScreen.png" width="300" /> | <img src="./resources/ToDosScreen.png" width="300" /> |
+
+### 3. Personalize Your Success
+From the core status colors to deep cosmic themes, Hadaf adapts to your visual signature.
+
+| Premium Customization | Smart Notification System |
+| :---: | :---: |
+| <img src="./resources/Themes&ColorsScreen.png" width="300" /> | <img src="./resources/TodoNotificationSystem.png" width="300" /> |
+
+---
+
+## 🚀 Key Features
+
+*   **Objective Portability:** Export objectives as structured ZIP files containing all data and physical attachments. Share your expertise as a functional file.
+*   **Glassmorphism UI:** A state-of-the-art interface featuring semi-transparent layers, dynamic blur effects, and premium typography (`Syne` & `DM Sans`).
+*   **Custom Status Ecosystem:** Define your own visual language for `Done`, `In-Progress`, and `Pending` tasks with a 12-color premium palette.
+*   **Rich Attachments:** Link documents, images, and files directly to your tasks. Everything is packaged together during export.
+*   **Localized Core:** Full support for English (LTR) and Arabic (RTL) with a unified, high-performance design system.
+*   **Privacy-First MMKV Storage:** Your data never leaves your device unless you choose to share it.
+
+---
+
+## 📲 Try it Now (Android)
+
+You can experience the premium Hadaf interaction lifecycle immediately by downloading our latest build:
+
+👉 **[Download Hadaf V3 APK](./resources/Hadaf_V3.apk)**
+
+*Note: You may need to enable "Install from Unknown Sources" in your Android settings to install the APK.*
 
 ---
 
 ## 🛠️ Technology Stack
 
 *   **Framework:** React Native / Expo
-*   **State Management:** Zustand
-*   **Storage:** react-native-mmkv
-*   **Navigation:** Expo Router
+*   **State Management:** Zustand (with MMKV Persistence)
+*   **Styling:** Custom Theme Engine (Dynamic Runtime Tokens)
+*   **Data Layer:** Expo FileSystem & Expo Sharing (Portability Protocol)
 *   **Icons:** Material Community Icons
-
-## 📦 Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/AmerZuher/Hadaf.git
-
-# Install dependencies
-npm install
-
-# Start the development server
-npx expo start
-```
 
 ## 👤 Author
 
@@ -96,4 +81,4 @@ npx expo start
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.

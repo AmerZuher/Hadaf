@@ -155,19 +155,22 @@ export const TRANSLATIONS = {
     
     // About
     version: 'Version',
-    vision: 'Our Vision',
-    visionDesc: 'Hadaf (Target) was built for those who find standard productivity tools too simple and traditional project managers too complex. We focus on high-contrast visuals and essential workflows to keep you in the flow state.',
-    features: 'Key Features',
-    f1Title: 'Dynamic Objectives',
-    f1Desc: 'Break down your vision into achievable milestones.',
-    f2Title: 'Kanban Flow',
-    f2Desc: 'Visualize your progress with an industrial-grade board.',
+    vision: 'The Vision',
+    visionDesc: 'Hadaf is the futuristic ecosystem for human achievement. It refines success into portable, high-end digital blueprints.',
+    features: 'Features',
+    f1Title: 'Futuristic Portability',
+    f1Desc: 'Export and import blueprints for success instantly.',
+    f2Title: 'Glass UI',
+    f2Desc: 'Next-gen glassmorphism for deep focus.',
     f3Title: 'Smart Alerts',
-    f3Desc: 'Stay on track with precisely timed notifications.',
-    f4Title: 'Premium Themes',
-    f4Desc: 'Experience productivity in high-contrast elegance.',
-    handcrafted: 'Handcrafted for excellence.',
+    f3Desc: 'Stay on track with precision notifications.',
+    f4Title: 'Customization',
+    f4Desc: 'High-contrast cosmic elegance.',
+    handcrafted: 'Handcrafted with Excellence.',
     copyright: 'Hadaf Productivity Systems',
+
+
+
     
     // Alerts
     success: 'Success',
@@ -338,19 +341,23 @@ export const TRANSLATIONS = {
     
     // About
     version: 'الإصدار',
-    vision: 'رؤيتنا',
-    visionDesc: 'تم بناء "هدف" لأولئك الذين يجدون أدوات الإنتاجية القياسية بسيطة للغاية ومديري المشاريع التقليديين معقدين للغاية. نحن نركز على المرئيات عالية التباين وسير العمل الأساسي لإبقائك في حالة من التركيز التام.',
-    features: 'الميزات الرئيسية',
-    f1Title: 'أهداف ديناميكية',
-    f1Desc: 'قسم رؤيتك إلى مراحل قابلة للتحقيق.',
-    f2Title: 'نظام كانبان',
-    f2Desc: 'تصور تقدمك من خلال لوحة احترافية.',
+    vision: 'الرؤية',
+    visionDesc: '"هدف" هو النظام المستقبلي للإنجازات البشرية. يصقل النجاح في مخططات رقمية راقية وقابلة للتنقل.',
+    features: 'الميزات',
+    f1Title: 'تنقل مستقبلي',
+    f1Desc: 'تصدير واستيراد مخططات النجاح فوراً.',
+    f2Title: 'واجهة زجاجية',
+    f2Desc: 'تصميم من الجيل القادم للتركيز العميق.',
     f3Title: 'تنبيهات ذكية',
-    f3Desc: 'ابقَ على المسار الصحيح مع تنبيهات دقيقة.',
-    f4Title: 'سمات متميزة',
-    f4Desc: 'جرب الإنتاجية بأناقة عالية التباين.',
+    f3Desc: 'ابقَ على المسار الصحيح بتنبيهات دقيقة.',
+    f4Title: 'تخصيص كامل',
+    f4Desc: 'أناقة كونية عالية التباين.',
     handcrafted: 'صنع يدويًا بتميز.',
     copyright: 'هدف لأنظمة الإنتاجية',
+
+
+
+
     
     // Alerts
     success: 'تم بنجاح',

@@ -34,10 +34,8 @@ const AboutScreen = () => {
           </View>
           <Text style={[globalStyles.heading, styles.appName]}>{APP_CONFIG.NAME.toUpperCase()}</Text>
           <Text style={[globalStyles.text, styles.version]}>{t('version')} {APP_CONFIG.VERSION}</Text>
-          <Text style={[globalStyles.text, styles.tagline]}>{t('visionDesc')}</Text>
         </View>
 
-        {/* Vision Section */}
         <View style={[styles.section, { backgroundColor: 'rgba(255,255,255,0.02)' }]}>
           <Text style={[globalStyles.subHeading, styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t('vision')}</Text>
           <Text style={[globalStyles.text, styles.sectionDesc, { textAlign: isRTL ? 'right' : 'left' }]}>
