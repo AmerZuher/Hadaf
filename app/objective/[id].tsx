@@ -16,13 +16,15 @@ import { NotificationConfig, Status } from '../../store/types';
 import Toast from 'react-native-toast-message';
 import { getTodoSchema, TodoFormData } from '../../utils/validation';
 import { useTranslations } from '../../hooks/useTranslations';
+import { AttachmentPicker } from '../../components/AttachmentPicker';
+import { FileAttachment } from '../../store/types';
 
 type Tab = 'todos' | 'kanban' | 'archived';
 
 const ObjectiveScreen = () => {
   const { id } = useLocalSearchParams();
   const { getActiveTheme } = useSettingsStore();
-  const { objectives, todos, updateTodo, archiveTodo, restoreTodo, deleteTodo, addTodo } = useObjectiveStore();
+  const { objectives, todos, updateTodo, archiveTodo, restoreTodo, deleteTodo, addTodo, addAttachment, removeAttachment } = useObjectiveStore();
   const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
@@ -41,6 +43,21 @@ const ObjectiveScreen = () => {
   
   const [isNotificationModalVisible, setIsNotificationModalVisible] = useState(false);
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
+
+  const [isAttachPickerVisible, setIsAttachPickerVisible] = useState(false);
+  const [attachingToTodoId, setAttachingToTodoId] = useState<string | null>(null);
+
+  const handleOpenAttachPicker = (todoId: string) => {
+    setAttachingToTodoId(todoId);
+    setIsAttachPickerVisible(true);
+  };
+
+  const handleAttach = (attachment: FileAttachment) => {
+    if (attachingToTodoId) {
+      addAttachment(attachingToTodoId, attachment);
+      setAttachingToTodoId(null);
+    }
+  };
 
   const handleOpenNotification = (todoId: string) => {
     setSelectedTodoId(todoId);
@@ -194,6 +211,8 @@ const ObjectiveScreen = () => {
             onDelete={(tid) => deleteTodo(tid)}
             onNotify={() => handleOpenNotification(item.id)}
             onEdit={() => handleOpenEditModal(item.id)}
+            onAddAttachment={handleOpenAttachPicker}
+            onRemoveAttachment={removeAttachment}
           />
         )}
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
@@ -443,10 +462,13 @@ const ObjectiveScreen = () => {
                 numberOfLines={3}
               />
 
-              <TouchableOpacity style={[styles.attachBtn, { borderColor: 'rgba(255,255,255,0.05)', flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <TouchableOpacity
+                style={[styles.attachBtn, { borderColor: 'rgba(255,255,255,0.05)', flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                onPress={() => editingTodoId && setIsAttachPickerVisible(true)}
+              >
                 <MaterialCommunityIcons name="paperclip" size={20} color={theme.colors.text} style={{ opacity: 0.5 }} />
                 <Text style={[globalStyles.text, { marginLeft: isRTL ? 0 : 12, marginRight: isRTL ? 12 : 0, opacity: 0.6 }]}>
-                  {t('attachFile')}
+                  {t('addAttachment')}
                 </Text>
               </TouchableOpacity>
             </ScrollView>
@@ -468,6 +490,12 @@ const ObjectiveScreen = () => {
         onClose={() => setIsNotificationModalVisible(false)}
         onSave={handleSaveNotification}
         initialConfig={todos.find((t) => t.id === selectedTodoId)?.notificationConfig}
+      />
+
+      <AttachmentPicker
+        visible={isAttachPickerVisible}
+        onClose={() => { setIsAttachPickerVisible(false); setAttachingToTodoId(null); }}
+        onAttach={handleAttach}
       />
     </View>
   );

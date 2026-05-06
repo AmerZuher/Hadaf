@@ -44,10 +44,24 @@ export const TRANSLATIONS = {
     duplicateTask: 'Duplicate Task',
     duplicateTaskMsg: 'A task with this name already exists.',
     objectiveNotFound: 'Objective not found',
-    attachFile: 'Attach File (Dummy)',
+    attachFile: 'Attach File',
+    start: 'Start',
     end: 'End',
     nextActions: 'Next Actions',
     close: 'Close',
+    
+    // Attachments
+    attachments: 'Attachments',
+    addAttachment: 'Add Attachment',
+    fromCamera: 'Camera',
+    fromGallery: 'Gallery',
+    fromFiles: 'Files',
+    removeAttachment: 'Remove',
+    fileTooLarge: 'File exceeds 25 MB limit',
+    fileNotFound: 'File not found',
+    moreAttachments: 'more',
+    viewAll: 'View All',
+    allAttachments: 'All Attachments',
     
     // Backup
     exportDesc: 'Save your objectives and tasks to a file',
@@ -189,6 +203,19 @@ export const TRANSLATIONS = {
     end: 'الانتهاء',
     nextActions: 'الخطوات التالية',
     close: 'إغلاق',
+
+    // Attachments
+    attachments: 'المرفقات',
+    addAttachment: 'إضافة مرفق',
+    fromCamera: 'الكاميرا',
+    fromGallery: 'المعرض',
+    fromFiles: 'الملفات',
+    removeAttachment: 'حذف',
+    fileTooLarge: 'الملف يتجاوز حد 25 ميغابايت',
+    fileNotFound: 'الملف غير موجود',
+    moreAttachments: 'المزيد',
+    viewAll: 'عرض الكل',
+    allAttachments: 'جميع المرفقات',
     
     // Backup
     exportDesc: 'احفظ أهدافك ومهامك في ملف',

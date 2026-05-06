@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Todo, Status } from '../store/types';
@@ -9,6 +9,7 @@ import { getGlobalStyles } from '../theme/theme';
 import { format } from 'date-fns';
 import { Swipeable } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
+import { AttachmentList } from './AttachmentList';
 
 interface TodoCardProps {
   item: Todo;
@@ -19,6 +20,8 @@ interface TodoCardProps {
   onDelete: (id: string) => void;
   onNotify: (id: string) => void;
   onEdit: (id: string) => void;
+  onAddAttachment?: (id: string) => void;
+  onRemoveAttachment?: (todoId: string, attachmentId: string) => void;
   isCompact?: boolean;
   isReadOnly?: boolean;
 }
@@ -32,6 +35,8 @@ export const TodoCard: React.FC<TodoCardProps> = ({
   onDelete,
   onNotify,
   onEdit,
+  onAddAttachment,
+  onRemoveAttachment,
   isCompact = false,
   isReadOnly = false,
 }) => {
@@ -39,6 +44,25 @@ export const TodoCard: React.FC<TodoCardProps> = ({
   const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
+  const swipeableRef = useRef<Swipeable>(null);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(12)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const statusColor =
     item.status === 'done'
@@ -52,13 +76,13 @@ export const TodoCard: React.FC<TodoCardProps> = ({
   const renderRightActions = () => {
     return (
       <View style={styles.rightActionsContainer}>
-        <TouchableOpacity onPress={() => onNotify(item.id)} style={[styles.actionBtn, { backgroundColor: '#3b82f6' }]}>
+        <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onNotify(item.id); }} style={[styles.actionBtn, { backgroundColor: '#3b82f6' }]}>
           <MaterialCommunityIcons name="bell-outline" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => onArchive(item.id)} style={[styles.actionBtn, { backgroundColor: '#f59e0b' }]}>
+        <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onArchive(item.id); }} style={[styles.actionBtn, { backgroundColor: '#f59e0b' }]}>
           <MaterialCommunityIcons name={item.isArchived ? "backup-restore" : "archive-outline"} size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => onDelete(item.id)} style={[styles.actionBtn, { backgroundColor: theme.colors.pending }]}>
+        <TouchableOpacity onPress={() => { swipeableRef.current?.close(); onDelete(item.id); }} style={[styles.actionBtn, { backgroundColor: theme.colors.pending }]}>
           <MaterialCommunityIcons name="trash-can-outline" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -67,13 +91,15 @@ export const TodoCard: React.FC<TodoCardProps> = ({
 
   return (
     <Swipeable
+      ref={swipeableRef}
       renderRightActions={!isReadOnly ? renderRightActions : undefined}
       enabled={!isReadOnly}
       overshootRight={false}
       overshootLeft={false}
       friction={2}
+      rightThreshold={40}
     >
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <LinearGradient
           colors={[theme.colors.cardStart, theme.colors.cardEnd]}
           start={{ x: 0, y: 0 }}
@@ -114,51 +140,80 @@ export const TodoCard: React.FC<TodoCardProps> = ({
               )}
             </View>
 
-            <View style={[styles.detailsRow, isCompact && { marginBottom: 8 }]}>
-              {item.startDate && (
-                <View style={[styles.detailItem, isRTL && { flexDirection: 'row-reverse' }]}>
-                  <MaterialCommunityIcons name="calendar-start" size={14} color={theme.colors.text} style={{ opacity: 0.5 }} />
-                  <Text style={[styles.detailLabel, isRTL && { marginRight: 0, marginLeft: 8 }]}>{t('start')}</Text>
-                  <Text style={styles.detailValue}>{item.startDate ? format(new Date(item.startDate), 'MMM dd') : '...'}</Text>
+            <View style={styles.contentBody}>
+              {(item.startDate || item.endDate) && (
+                <View style={[styles.detailsRow, isRTL && { flexDirection: 'row-reverse' }]}>
+                  {item.startDate && (
+                    <View style={[styles.detailItem, { borderColor: statusColor + '20', borderLeftColor: statusColor, borderLeftWidth: 3 }, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: statusColor }]}>
+                      <MaterialCommunityIcons name="calendar-start" size={12} color={statusColor} />
+                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4 }}>
+                        <Text style={[styles.detailLabel, { color: theme.colors.text, opacity: 0.5 }]}>{t('start')}</Text>
+                        <Text style={styles.detailValue}>{format(new Date(item.startDate), 'MMM dd')}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {item.endDate && (
+                    <View style={[styles.detailItem, { borderColor: statusColor + '20', borderLeftColor: statusColor, borderLeftWidth: 3 }, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: statusColor }]}>
+                      <MaterialCommunityIcons name="calendar-end" size={12} color={statusColor} />
+                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4 }}>
+                        <Text style={[styles.detailLabel, { color: theme.colors.text, opacity: 0.5 }]}>{t('end')}</Text>
+                        <Text style={styles.detailValue}>{format(new Date(item.endDate), 'MMM dd')}</Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
               )}
-              {item.endDate && (
-                <View style={[styles.detailItem, isRTL && { flexDirection: 'row-reverse' }]}>
-                  <MaterialCommunityIcons name="calendar-end" size={14} color={theme.colors.text} style={{ opacity: 0.5 }} />
-                  <Text style={[styles.detailLabel, isRTL && { marginRight: 0, marginLeft: 8 }]}>{t('end')}</Text>
-                  <Text style={styles.detailValue}>{item.endDate ? format(new Date(item.endDate), 'MMM dd') : '...'}</Text>
+
+              {item.location && !isCompact && (
+                <View style={[styles.locationContainer, isRTL && { flexDirection: 'row-reverse' }]}>
+                  <View style={[styles.locationPill, { borderColor: statusColor + '20', borderLeftColor: statusColor, borderLeftWidth: 3 }, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: statusColor }]}>
+                    <MaterialCommunityIcons name="map-marker-outline" size={12} color={statusColor} />
+                    <Text style={[styles.locationText, { color: theme.colors.text, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>
+                      {item.location}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {item.notes && (
+                <TouchableOpacity 
+                  onPress={!isReadOnly ? () => setIsNoteModalVisible(true) : undefined} 
+                  activeOpacity={isReadOnly ? 1 : 0.7}
+                  style={styles.notesWrapper}
+                >
+                  <View style={[styles.notesPill, { borderColor: statusColor + '20', borderLeftColor: statusColor, borderLeftWidth: 3 }, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: statusColor }]}>
+                    <MaterialCommunityIcons name="note-text-outline" size={14} color={statusColor} style={{ opacity: 0.8 }} />
+                    <Text style={[globalStyles.text, styles.notes, isCompact && { fontSize: 11 }]} numberOfLines={isCompact ? 2 : 3}>
+                      {item.notes}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+
+              {!isCompact && (
+                <View style={styles.attachmentSection}>
+                  <AttachmentList
+                    attachments={item.attachments ?? []}
+                    onRemove={onRemoveAttachment ? (attId) => onRemoveAttachment(item.id, attId) : undefined}
+                    isReadOnly={isReadOnly}
+                    accentColor={statusColor}
+                  />
+                  {!isReadOnly && (
+                    <TouchableOpacity
+                      style={[styles.addAttachBtn, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                      onPress={() => onAddAttachment?.(item.id)}
+                      activeOpacity={0.7}
+                    >
+                      <MaterialCommunityIcons name="plus-circle-outline" size={14} color={statusColor} style={{ opacity: 0.6 }} />
+                      <Text style={[styles.addAttachText, { color: statusColor }]}>{t('addAttachment')}</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               )}
             </View>
-
-            {item.location && !isCompact && (
-              <View style={styles.locationContainer}>
-                <View style={styles.locationIconBg}>
-                  <MaterialCommunityIcons name="map-marker-outline" size={14} color={theme.colors.text} />
-                </View>
-                <Text style={[globalStyles.text, { fontSize: 13, opacity: 0.9, fontFamily: 'DMSans_400Regular' }]}>{item.location}</Text>
-              </View>
-            )}
-
-            {item.notes && (
-              <TouchableOpacity onPress={!isReadOnly ? () => setIsNoteModalVisible(true) : undefined} activeOpacity={isReadOnly ? 1 : 0.7}>
-                <Text style={[globalStyles.text, styles.notes, isCompact && { padding: 8, fontSize: 11, borderRadius: 8 }]} numberOfLines={isCompact ? 2 : 3}>
-                  {item.notes}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {!isCompact && (
-              <View style={styles.attachmentsContainer}>
-                <View style={[styles.attachmentBadge, { backgroundColor: theme.colors.inProgress + '20', flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                  <MaterialCommunityIcons name="link-variant" size={12} color={theme.colors.inProgress} />
-                  <Text style={styles.attachmentText}>{t('nextActions')}</Text>
-                </View>
-              </View>
-            )}
           </TouchableOpacity>
         </LinearGradient>
-      </View>
+      </Animated.View>
       <Modal visible={isNoteModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={[styles.notesContent, { backgroundColor: theme.colors.cardEnd }]}>
@@ -196,65 +251,77 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  contentBody: {
+    gap: 12,
+  },
   detailsRow: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 12,
   },
-  detailBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    flex: 1,
+    borderRadius: 10,
   },
   detailLabel: {
     fontSize: 10,
     color: '#94a3b8',
     fontFamily: 'DMSans_400Regular',
-    marginBottom: 2,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
+    alignSelf: 'flex-start',
+    maxWidth: '95%',
   },
-  locationIconBg: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 6,
-  },
-  notes: {
-    fontSize: 13,
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-  },
-  attachmentsContainer: {
-    flexDirection: 'row',
-    marginTop: 8,
-    gap: 8,
-  },
-  attachmentBadge: {
+  locationPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    paddingHorizontal: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    gap: 6,
+    borderWidth: 1,
+    gap: 8,
   },
-  attachmentText: {
-    color: '#fff',
+  locationText: {
+    fontSize: 11,
+    fontFamily: 'DMSans_500Medium',
+    opacity: 0.8,
+  },
+  notesPill: {
+    flexDirection: 'row',
+    gap: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  notes: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
     opacity: 0.8,
+    flex: 1,
+  },
+  attachmentSection: {
+    marginTop: 4,
+    gap: 10,
+  },
+  addAttachBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 8,
+    paddingVertical: 4,
+    opacity: 0.5,
+  },
+  addAttachText: {
+    fontSize: 11,
+    fontFamily: 'DMSans_400Regular',
   },
   compactStatusPicker: {
     flexDirection: 'row',
@@ -278,15 +345,7 @@ const styles = StyleSheet.create({
     opacity: 0.3,
     textTransform: 'uppercase',
   },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
+
   detailValue: {
     fontSize: 11,
     color: '#fff',

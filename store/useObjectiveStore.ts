@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { zustandStorage } from './mmkv';
-import { Objective, Todo, Status } from './types';
+import { Objective, Todo, Status, FileAttachment } from './types';
 
 interface ObjectiveState {
   objectives: Objective[];
@@ -16,6 +16,8 @@ interface ObjectiveState {
   restoreTodo: (id: string) => void;
   reorderTodos: (objectiveId: string, orderedTodoIds: string[]) => void;
   importTodos: (todos: Omit<Todo, 'id'>[]) => void;
+  addAttachment: (todoId: string, attachment: FileAttachment) => void;
+  removeAttachment: (todoId: string, attachmentId: string) => void;
 }
 
 export const useObjectiveStore = create<ObjectiveState>()(
@@ -113,6 +115,26 @@ export const useObjectiveStore = create<ObjectiveState>()(
           }));
           return { todos: [...state.todos, ...formattedTodos] };
         });
+      },
+
+      addAttachment: (todoId, attachment) => {
+        set((state) => ({
+          todos: state.todos.map((todo) =>
+            todo.id === todoId
+              ? { ...todo, attachments: [...(todo.attachments ?? []), attachment] }
+              : todo
+          ),
+        }));
+      },
+
+      removeAttachment: (todoId, attachmentId) => {
+        set((state) => ({
+          todos: state.todos.map((todo) =>
+            todo.id === todoId
+              ? { ...todo, attachments: (todo.attachments ?? []).filter((a) => a.id !== attachmentId) }
+              : todo
+          ),
+        }));
       },
     }),
     {

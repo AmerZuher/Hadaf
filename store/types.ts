@@ -1,5 +1,14 @@
 export type Status = 'done' | 'in-progress' | 'pending';
 
+export interface FileAttachment {
+  id: string;
+  name: string;
+  uri: string;       // local file:// URI
+  mimeType: string;
+  size: number;      // bytes
+  addedAt: string;   // ISO date
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -30,6 +39,7 @@ export interface Todo {
   isArchived: boolean;
   order: number;
   notificationConfig?: NotificationConfig;
+  attachments?: FileAttachment[];
 }
 
 export interface Objective {
