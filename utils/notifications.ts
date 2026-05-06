@@ -25,8 +25,9 @@ export async function requestNotificationPermissions() {
   const Notifications = getNotifications();
   if (!Notifications) {
     if (isExpoGo) {
-      console.warn('Notifications (expo-notifications) is restricted in Expo Go SDK 53+. Please use a development build.');
+      console.log('Notifications (expo-notifications) are restricted in Expo Go. Use a development build or the standalone APK.');
     }
+
     return false;
   }
 
@@ -62,8 +63,9 @@ export async function scheduleTodoNotification(
   const Notifications = getNotifications();
   if (!Notifications) {
     if (isExpoGo) {
-      console.warn('Cannot schedule notification: expo-notifications is incompatible with Expo Go. Use a development build.');
+      console.log('Notification scheduling skipped: Expo Go environment detected. Notifications are optimized for standalone builds.');
     }
+
     return undefined;
   }
 

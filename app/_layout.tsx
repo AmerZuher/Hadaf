@@ -7,6 +7,29 @@ import { StatusBar } from 'expo-status-bar';
 import Toast from 'react-native-toast-message';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+
+// Safe notification handler setup
+const isExpoGo = 
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient || 
+  (Constants as any).appOwnership === 'expo' ||
+  !!(Constants as any).expoVersion;
+
+if (!isExpoGo) {
+  try {
+    const Notifications = require('expo-notifications');
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+  } catch (e) {
+    console.log('Notifications not available');
+  }
+}
+
 
 export default function RootLayout() {
   const { language } = useSettingsStore();
