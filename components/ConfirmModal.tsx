@@ -4,7 +4,8 @@ import { BlurView } from 'expo-blur';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { getGlobalStyles } from '../theme/theme';
+import { getGlobalStyles, addAlpha } from '../theme/theme';
+
 import { useTranslations } from '../hooks/useTranslations';
 
 interface ConfirmModalProps {
@@ -53,10 +54,11 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   const getAccentColor = () => {
     switch (type) {
       case 'danger': return theme.colors.pending;
-      case 'warning': return '#f59e0b';
-      default: return '#3b82f6';
+      case 'warning': return theme.colors.inProgress;
+      default: return theme.colors.done;
     }
   };
+
 
   const accentColor = getAccentColor();
 
@@ -78,20 +80,22 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               opacity: fadeAnim, 
               transform: [{ scale: scaleAnim }],
               backgroundColor: theme.colors.backgroundMain,
-              borderColor: `${accentColor}40`,
+              borderColor: addAlpha(accentColor, '40'),
             }
+
           ]}
         >
           <LinearGradient
-            colors={[`${accentColor}10`, 'transparent']}
+            colors={[addAlpha(accentColor, '10'), 'transparent']}
             style={styles.gradientHeader}
           />
 
           <View style={styles.iconWrapper}>
-            <View style={[styles.iconCircle, { backgroundColor: `${accentColor}15` }]}>
+            <View style={[styles.iconCircle, { backgroundColor: addAlpha(accentColor, '15') }]}>
               <MaterialCommunityIcons name={icon} size={32} color={accentColor} />
             </View>
           </View>
+
 
           <Text style={[globalStyles.heading, styles.title, { textAlign: 'center' }]}>{title}</Text>
           <Text style={[globalStyles.text, styles.message, { textAlign: 'center' }]}>{message}</Text>
@@ -108,10 +112,11 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               style={[styles.btn, styles.confirmBtn, { backgroundColor: accentColor }]} 
               onPress={onConfirm}
             >
-              <Text style={[globalStyles.text, { fontFamily: 'Syne_600SemiBold', color: '#fff' }]}>
+              <Text style={[globalStyles.text, { fontFamily: 'Syne_600SemiBold', color: theme.colors.backgroundMain }]}>
                 {confirmText || t('confirm')}
               </Text>
             </TouchableOpacity>
+
           </View>
         </Animated.View>
       </View>
@@ -127,6 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
+
   modalContainer: {
     width: '100%',
     maxWidth: 400,
@@ -179,6 +185,7 @@ const styles = StyleSheet.create({
   cancelBtn: {
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
+
   confirmBtn: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },

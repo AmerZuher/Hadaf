@@ -11,7 +11,11 @@ export const TRANSLATIONS = {
     confirm: 'Confirm',
     delete: 'Delete',
     edit: 'Edit',
+    next: 'Next',
+
+    options: 'Options',
     done: 'Done',
+
     inProgress: 'In Progress',
     pending: 'Pending',
     all: 'All',
@@ -190,7 +194,11 @@ export const TRANSLATIONS = {
     confirm: 'تأكيد',
     delete: 'حذف',
     edit: 'تعديل',
+    next: 'التالي',
+
+    options: 'خيارات',
     done: 'مكتمل',
+
     inProgress: 'قيد التنفيذ',
     pending: 'قيد الانتظار',
     all: 'الكل',

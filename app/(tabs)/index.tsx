@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useObjectiveStore } from '../../store/useObjectiveStore';
-import { getGlobalStyles } from '../../theme/theme';
+import { getGlobalStyles, addAlpha } from '../../theme/theme';
 import { GlobalHeader } from '../../components/GlobalHeader';
 import { PresentationSwitcher, PresentationMode } from '../../components/PresentationSwitcher';
 import { FilterBar } from '../../components/FilterBar';
@@ -190,7 +190,9 @@ export default function HomeScreen() {
               <Text style={[styles.menuText, { color: theme.colors.text }]}>{t('createNewObjective')}</Text>
             </TouchableOpacity>
             
-            <View style={[styles.menuSeparator, { backgroundColor: 'rgba(255,255,255,0.05)' }]} />
+            <View style={[styles.menuSeparator, { backgroundColor: addAlpha(theme.colors.text, '10') }]} />
+
+
             
             <TouchableOpacity 
               style={[styles.menuItem, isRTL && { flexDirection: 'row-reverse' }]}
@@ -233,13 +235,15 @@ export default function HomeScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <TextInput
-                style={[styles.input, { color: theme.colors.text, borderColor: 'rgba(255,255,255,0.1)', textAlign: isRTL ? 'right' : 'left' }]}
+                style={[styles.input, { color: theme.colors.text, borderColor: addAlpha(theme.colors.text, '20'), textAlign: isRTL ? 'right' : 'left' }]}
                 placeholder={t('objectivePlaceholder')}
-                placeholderTextColor="rgba(255,255,255,0.4)"
+                placeholderTextColor={addAlpha(theme.colors.text, '40')}
                 value={newObjectiveName}
                 onChangeText={setNewObjectiveName}
                 autoFocus
               />
+
+
 
               <CategorySelector 
                 selectedCategoryId={selectedCategoryId} 
@@ -305,8 +309,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
     marginBottom: 24,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
+
   createBtn: {
     height: 60,
     borderRadius: 16,
@@ -323,9 +328,10 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.05)',
     overflow: 'hidden',
   },
+
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',

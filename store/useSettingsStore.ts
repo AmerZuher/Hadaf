@@ -12,9 +12,10 @@ export const defaultThemes: ThemeConfig[] = [
       backgroundMain: '#020617',
       cardStart: '#0f172a',
       cardEnd: '#1e293b',
-      done: '#10b981',
-      inProgress: '#3b82f6',
-      pending: '#ef4444',
+      done: '#691ce2ff',
+
+      inProgress: '#0367f6ff',
+      pending: '#fc3939ff',
       text: '#f8fafc',
       accent: '#6366f1',
     },
@@ -26,7 +27,8 @@ export const defaultThemes: ThemeConfig[] = [
       backgroundMain: '#000000',
       cardStart: '#0a0a0a',
       cardEnd: '#1a1a1a',
-      done: '#10b981',
+      done: '#8b5cf6',
+
       inProgress: '#3b82f6',
       pending: '#ef4444',
       text: '#f8fafc',
@@ -40,7 +42,8 @@ export const defaultThemes: ThemeConfig[] = [
       backgroundMain: '#022c22',
       cardStart: '#064e3b',
       cardEnd: '#065f46',
-      done: '#10b981',
+      done: '#8b5cf6',
+
       inProgress: '#3b82f6',
       pending: '#ef4444',
       text: '#ecfdf5',
@@ -54,7 +57,8 @@ export const defaultThemes: ThemeConfig[] = [
       backgroundMain: '#1e1b4b',
       cardStart: '#1e1b4b',
       cardEnd: '#312e81',
-      done: '#10b981',
+      done: '#8b5cf6',
+
       inProgress: '#3b82f6',
       pending: '#ef4444',
       text: '#f8fafc',

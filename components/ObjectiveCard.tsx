@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Alert, ActivityIndicator, Modal } from 'react-native';
+
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -9,7 +10,8 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { useCategoryStore } from '../store/useCategoryStore';
 import { useObjectiveStore } from '../store/useObjectiveStore';
 import { useTranslations } from '../hooks/useTranslations';
-import { getGlobalStyles } from '../theme/theme';
+import { getGlobalStyles, addAlpha } from '../theme/theme';
+
 import { format, isAfter } from 'date-fns';
 import { exportObjective, saveObjectiveToDevice } from '../utils/objectiveExport';
 import React, { useEffect, useRef, useState } from 'react';
@@ -36,7 +38,8 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
 
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [isExportModalVisible, setIsExportModalVisible] = useState(false);
+  const [isChoiceModalVisible, setIsChoiceModalVisible] = useState(false);
+
 
 
 
@@ -66,7 +69,8 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
   const nextMilestone = upcomingTodos.length > 0 ? upcomingTodos[0] : null;
 
   const handleExport = async (mode: 'share' | 'save') => {
-    setIsExportModalVisible(false);
+    setIsChoiceModalVisible(false);
+
     setIsExporting(true);
     swipeableRef.current?.close();
     
@@ -137,25 +141,27 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
           <TouchableOpacity 
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              setIsExportModalVisible(true);
+              setIsChoiceModalVisible(true);
             }} 
-            style={[styles.actionBtn, { backgroundColor: '#3b82f6' }]}
+            style={[styles.actionBtn, { backgroundColor: theme.colors.done }]}
             disabled={isExporting}
           >
             {isExporting ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={theme.colors.text} />
             ) : (
-              <MaterialCommunityIcons name="share-variant" size={24} color="#fff" />
+              <MaterialCommunityIcons name="share-variant" size={24} color={theme.colors.cardStart} />
             )}
           </TouchableOpacity>
+
         </Animated.View>
         <Animated.View style={[styles.actionBtnWrapper, { opacity, transform: [{ scale: scaleDelete }] }]}>
           <TouchableOpacity 
             onPress={handleDelete} 
             style={[styles.actionBtn, { backgroundColor: theme.colors.pending }]}
           >
-            <MaterialCommunityIcons name="trash-can-outline" size={24} color="#fff" />
+            <MaterialCommunityIcons name="trash-can-outline" size={24} color={theme.colors.cardStart} />
           </TouchableOpacity>
+
         </Animated.View>
       </View>
     );
@@ -182,7 +188,8 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
                 <View style={[styles.progressBarFill, { width: `${progress}%`, backgroundColor: theme.colors.done }]} />
               </View>
             </View>
-            <Text style={[globalStyles.text, { fontSize: 12, opacity: 0.6 }]}>{Math.round(progress)}%</Text>
+            <Text style={[globalStyles.text, { fontSize: 12, color: theme.colors.text, opacity: 0.6 }]}>{Math.round(progress)}%</Text>
+
           </LinearGradient>
         </TouchableOpacity>
       </Animated.View>
@@ -213,12 +220,15 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
 
             <View style={styles.gridBottom}>
               <View style={[styles.gridProgressRow, isRTL && { flexDirection: 'row-reverse' }]}>
-                <Text style={styles.gridProgressText}>{t('progress')}</Text>
-                <Text style={[styles.gridProgressText, { color: '#fff' }]}>{Math.round(progress)}%</Text>
+                <Text style={[styles.gridProgressText, { color: theme.colors.text }]}>{t('progress')}</Text>
+                <Text style={[styles.gridProgressText, { color: theme.colors.text }]}>{Math.round(progress)}%</Text>
+
+
               </View>
-              <View style={[styles.progressBarBg, { backgroundColor: 'rgba(255, 255, 255, 0.1)', height: 4 }]}>
+              <View style={[styles.progressBarBg, { backgroundColor: addAlpha(theme.colors.text, '10'), height: 4 }]}>
                 <View style={[styles.progressBarFill, { width: `${progress}%`, backgroundColor: theme.colors.done }]} />
               </View>
+
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -272,10 +282,12 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
               <View style={styles.milestoneContainer}>
                 <MaterialCommunityIcons name="flag-triangle" size={16} color={theme.colors.pending} />
                 <Text style={[globalStyles.text, styles.milestoneText]}>
-                  Next: {nextMilestone.name} ({format(new Date(nextMilestone.endDate!), 'MMM d')})
+                  {t('next')}: {nextMilestone.name} ({format(new Date(nextMilestone.endDate!), 'MMM d')})
                 </Text>
               </View>
             )}
+
+
           </LinearGradient>
         </TouchableOpacity>
       </Animated.View>
@@ -290,17 +302,46 @@ export const ObjectiveCard: React.FC<ObjectiveCardProps> = ({ objective, mode = 
         icon="trash-can-outline"
       />
 
-      <ConfirmModal
-        visible={isExportModalVisible}
-        title={t('selectExportMode')}
-        message={objective.name}
-        confirmText={t('saveToDevice')}
-        cancelText={t('shareZip')}
-        onConfirm={() => handleExport('save')}
-        onCancel={() => handleExport('share')}
-        type="info"
-        icon="folder-zip-outline"
-      />
+      <Modal visible={isChoiceModalVisible} transparent animationType="fade" onRequestClose={() => setIsChoiceModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsChoiceModalVisible(false)}>
+          <View style={[styles.choiceContainer, { backgroundColor: theme.colors.backgroundMain }]}>
+             <View style={styles.choiceHeader}>
+                <View style={[styles.choiceIconBg, { backgroundColor: addAlpha(theme.colors.done, '15') }]}>
+                  <MaterialCommunityIcons name="folder-zip-outline" size={32} color={theme.colors.done} />
+                </View>
+
+                <Text style={[globalStyles.subHeading, { marginTop: 16, textAlign: 'center' }]}>{t('selectExportMode')}</Text>
+                <Text style={[globalStyles.text, { opacity: 0.6, marginTop: 4, textAlign: 'center' }]}>{objective.name}</Text>
+             </View>
+
+             <View style={styles.choiceButtons}>
+                <TouchableOpacity 
+                  style={[styles.choiceBtn, { backgroundColor: theme.colors.done }]} 
+                  onPress={() => handleExport('save')}
+                >
+                  <MaterialCommunityIcons name="content-save-outline" size={20} color={theme.colors.backgroundMain} />
+                  <Text style={[styles.choiceBtnText, { color: theme.colors.backgroundMain }]}>{t('saveToDevice')}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[styles.choiceBtn, { backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }]} 
+                  onPress={() => handleExport('share')}
+                >
+                  <MaterialCommunityIcons name="share-variant" size={20} color={theme.colors.text} />
+                  <Text style={[styles.choiceBtnText, { color: theme.colors.text }]}>{t('shareZip')}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.choiceCancelBtn} 
+                  onPress={() => setIsChoiceModalVisible(false)}
+                >
+                  <Text style={[styles.choiceBtnText, { color: theme.colors.text, opacity: 0.5 }]}>{t('cancel')}</Text>
+                </TouchableOpacity>
+             </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </Swipeable>
 
   );
@@ -430,8 +471,57 @@ const styles = StyleSheet.create({
   },
   gridProgressText: {
     fontSize: 10,
-    color: '#fff',
     opacity: 0.6,
     fontFamily: 'DMSans_400Regular',
   },
+
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  choiceContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: 32,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  choiceHeader: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  choiceIconBg: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  choiceButtons: {
+    gap: 12,
+  },
+  choiceBtn: {
+    height: 56,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  choiceBtnText: {
+    fontFamily: 'Syne_600SemiBold',
+    fontSize: 15,
+  },
+  choiceCancelBtn: {
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 4,
+  },
 });
+

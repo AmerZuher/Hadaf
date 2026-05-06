@@ -34,12 +34,12 @@ const AttachmentChip: React.FC<ChipProps> = ({ attachment, onPress, onLongPress,
       style={[
         styles.chip, 
         { 
-          backgroundColor: 'rgba(255,255,255,0.04)', 
-          borderColor: accentColor + '20',
-          borderLeftColor: accentColor,
-          borderLeftWidth: 3 
+          backgroundColor: 'rgba(255,255,255,0.03)', 
+          borderColor: 'rgba(255,255,255,0.06)',
         },
-        isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: accentColor, flexDirection: 'row-reverse' }
+
+        isRTL && { flexDirection: 'row-reverse' }
+
       ]}
       onPress={onPress}
       onLongPress={onLongPress}
@@ -87,8 +87,9 @@ const AttachmentRow: React.FC<RowProps> = ({ attachment, accentColor, textColor,
     </View>
     {onDelete && (
       <TouchableOpacity onPress={onDelete} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-        <MaterialCommunityIcons name="trash-can-outline" size={18} color="#ff4444" style={{ opacity: 0.7 }} />
+        <MaterialCommunityIcons name="trash-can-outline" size={18} color={accentColor} style={{ opacity: 0.8 }} />
       </TouchableOpacity>
+
     )}
     <MaterialCommunityIcons 
       name={isRTL ? "chevron-left" : "chevron-right"} 
@@ -164,18 +165,19 @@ export const AttachmentList: React.FC<AttachmentListProps> = ({
               styles.moreBadge, 
               { 
                 backgroundColor: 'rgba(255,255,255,0.03)', 
-                borderColor: accentColor + '20',
-                borderLeftColor: accentColor,
-                borderLeftWidth: 3 
+                borderColor: 'rgba(255,255,255,0.06)',
               },
-              isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: accentColor, flexDirection: 'row-reverse' }
+
+              isRTL && { flexDirection: 'row-reverse' }
+
             ]}
             onPress={() => setViewAllVisible(true)}
             activeOpacity={0.7}
           >
             <Text style={[styles.moreText, { color: theme.colors.text, opacity: 0.6 }]}>
-              {isRTL ? `+${hiddenCount} ${t('moreAttachments')}` : `+${hiddenCount} ${t('moreAttachments')}`}
+              {`+${hiddenCount} ${t('moreAttachments')}`}
             </Text>
+
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -233,10 +235,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     maxWidth: 150,
   },
+
   chipText: {
     fontSize: 10,
     fontFamily: 'DMSans_500Medium',
@@ -245,9 +248,10 @@ const styles = StyleSheet.create({
   moreBadge: {
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     justifyContent: 'center',
+
     alignItems: 'center',
   },
   moreText: {

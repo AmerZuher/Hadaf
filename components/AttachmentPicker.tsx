@@ -50,10 +50,11 @@ export const AttachmentPicker: React.FC<AttachmentPickerProps> = ({
   };
 
   const sources = [
-    { key: 'camera', icon: 'camera-outline', label: t('fromCamera'), color: '#6366f1' },
-    { key: 'gallery', icon: 'image-multiple-outline', label: t('fromGallery'), color: '#10b981' },
-    { key: 'files', icon: 'folder-open-outline', label: t('fromFiles'), color: '#f59e0b' },
+    { key: 'camera', icon: 'camera-outline', label: t('fromCamera'), color: theme.colors.done },
+    { key: 'gallery', icon: 'image-multiple-outline', label: t('fromGallery'), color: theme.colors.inProgress },
+    { key: 'files', icon: 'folder-open-outline', label: t('fromFiles'), color: theme.colors.pending },
   ] as const;
+
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>

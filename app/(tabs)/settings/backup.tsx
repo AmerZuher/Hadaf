@@ -13,7 +13,8 @@ import { useTranslations } from '../../../hooks/useTranslations';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { generateFullBackupZip, parseFullImport, confirmFullImport } from '../../../utils/objectiveExport';
 import { useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Modal } from 'react-native';
+
 import * as Sharing from 'expo-sharing';
 import Toast from 'react-native-toast-message';
 
@@ -26,6 +27,8 @@ export default function BackupScreen() {
   const { t, isRTL } = useTranslations();
   const theme = getActiveTheme();
   const globalStyles = getGlobalStyles(theme.colors);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isExportChoiceVisible, setIsExportChoiceVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{ 
     visible: boolean; 
     title: string; 
@@ -41,7 +44,8 @@ export default function BackupScreen() {
 
 
   const handleExport = async (mode: 'share' | 'save') => {
-    setModalConfig(null);
+    setIsExportChoiceVisible(false);
+
     try {
       const zipUri = await generateFullBackupZip(objectives, todos);
       
@@ -133,17 +137,8 @@ export default function BackupScreen() {
         
         <TouchableOpacity 
           style={[styles.btn, { backgroundColor: theme.colors.cardStart, flexDirection: isRTL ? 'row-reverse' : 'row' }]} 
-          onPress={() => setModalConfig({
-            visible: true,
-            title: t('selectExportMode'),
-            message: t('exportDesc'),
-            type: 'info',
-            icon: 'export',
-            confirmText: t('saveToDevice'),
-            cancelText: t('shareZip'),
-            onConfirm: () => handleExport('save'),
-            onCancel: () => handleExport('share')
-          })}
+          onPress={() => setIsExportChoiceVisible(true)}
+
 
         >
 
@@ -191,12 +186,52 @@ export default function BackupScreen() {
           onCancel={modalConfig.onCancel || (() => setModalConfig(null))}
           type={modalConfig.type}
           icon={modalConfig.icon}
-          confirmText={modalConfig.confirmText || "OK"}
-          cancelText={modalConfig.cancelText}
+          confirmText={modalConfig.confirmText || t('confirm')}
+          cancelText={modalConfig.cancelText || t('cancel')}
         />
 
       ) : null}
+
+      <Modal visible={isExportChoiceVisible} transparent animationType="fade" onRequestClose={() => setIsExportChoiceVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsExportChoiceVisible(false)}>
+          <View style={[styles.choiceContainer, { backgroundColor: theme.colors.backgroundMain }]}>
+             <View style={styles.choiceHeader}>
+                <View style={[styles.choiceIconBg, { backgroundColor: `${theme.colors.done}15` }]}>
+                  <MaterialCommunityIcons name="export" size={32} color={theme.colors.done} />
+                </View>
+                <Text style={[globalStyles.subHeading, { marginTop: 16, textAlign: 'center' }]}>{t('selectExportMode')}</Text>
+                <Text style={[globalStyles.text, { opacity: 0.6, marginTop: 4, textAlign: 'center' }]}>{t('exportDesc')}</Text>
+             </View>
+
+             <View style={styles.choiceButtons}>
+                <TouchableOpacity 
+                  style={[styles.choiceBtn, { backgroundColor: theme.colors.done }]} 
+                  onPress={() => handleExport('save')}
+                >
+                  <MaterialCommunityIcons name="content-save-outline" size={20} color={theme.colors.backgroundMain} />
+                  <Text style={[styles.choiceBtnText, { color: theme.colors.backgroundMain }]}>{t('saveToDevice')}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[styles.choiceBtn, { backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }]} 
+                  onPress={() => handleExport('share')}
+                >
+                  <MaterialCommunityIcons name="share-variant" size={20} color={theme.colors.text} />
+                  <Text style={[styles.choiceBtnText, { color: theme.colors.text }]}>{t('shareZip')}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.choiceCancelBtn} 
+                  onPress={() => setIsExportChoiceVisible(false)}
+                >
+                  <Text style={[styles.choiceBtnText, { color: theme.colors.text, opacity: 0.5 }]}>{t('cancel')}</Text>
+                </TouchableOpacity>
+             </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
+
   );
 }
 
@@ -223,4 +258,52 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  choiceContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: 32,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  choiceHeader: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  choiceIconBg: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  choiceButtons: {
+    gap: 12,
+  },
+  choiceBtn: {
+    height: 56,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  choiceBtnText: {
+    fontFamily: 'Syne_600SemiBold',
+    fontSize: 15,
+  },
+  choiceCancelBtn: {
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 4,
+  },
 });
+

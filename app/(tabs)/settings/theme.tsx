@@ -11,9 +11,11 @@ import { useTranslations } from '../../../hooks/useTranslations';
 const { width } = Dimensions.get('window');
 
 const PRESET_COLORS = [
-  '#10b981', '#3b82f6', '#f59e0b', '#f43f5e', 
-  '#a855f7', '#64748b', '#000000', '#ffffff'
+  '#8b5cf6', '#3b82f6', '#f59e0b', '#ef4444', 
+  '#10b981', '#06b6d4', '#f43f5e', '#f97316',
+  '#ec4899', '#64748b', '#000000', '#ffffff'
 ];
+
 
 const THEME_ICONS: Record<string, string> = {
   midnight: 'moon-waning-crescent',
