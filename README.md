@@ -1,6 +1,5 @@
 <div align="center">
 
-<img src="./assets/icon.png" width="120" alt="Hadaf icon" />
 
 <img src="./gallery/poster.webp" alt="Hadaf (Target) — The Universal Standard for Goal Achievement & Objective Sharing" width="100%" />
 
