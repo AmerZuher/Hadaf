@@ -1,3 +1,15 @@
+<div align="center">
+
+<img src="./assets/icon.png" width="120" alt="Hadaf icon" />
+
+<img src="./gallery/poster.webp" alt="Hadaf (Target) — The Universal Standard for Goal Achievement & Objective Sharing" width="100%" />
+
+**Portability · Execution · Privacy**
+
+</div>
+
+---
+
 # Hadaf (Target) 🎯 
 ### The Universal Standard for Goal Achievement & Objective Sharing
 
@@ -26,21 +38,21 @@ Hadaf allows you to export your entire objective lifecycle or import others' wis
 
 | Exporting Blueprints | Importing Wisdom |
 | :---: | :---: |
-| <img src="./resources/ExportObjectiveMode.png" width="300" /> | <img src="./resources/ImportObjectivesModes.png" width="300" /> |
+| <img src="./gallery/ExportObjectiveMode.png" width="300" /> | <img src="./gallery/ImportObjectivesModes.png" width="300" /> |
 
 ### 2. High-Contrast Execution
 Experience your workflow in stunning glassmorphism. Our UI is designed to keep you focused, with status-aware colors and a secondary "frosted glass" layer for sub-details.
 
 | Objectives Dashboard | Kanban Task Flow |
 | :---: | :---: |
-| <img src="./resources/ObjectivesScreen.png" width="300" /> | <img src="./resources/ToDosScreen.png" width="300" /> |
+| <img src="./gallery/ObjectivesScreen.png" width="300" /> | <img src="./gallery/ToDosScreen.png" width="300" /> |
 
 ### 3. Personalize Your Success
 From the core status colors to deep cosmic themes, Hadaf adapts to your visual signature.
 
 | Premium Customization | Smart Notification System |
 | :---: | :---: |
-| <img src="./resources/Themes&ColorsScreen.png" width="300" /> | <img src="./resources/TodoNotificationSystem.png" width="300" /> |
+| <img src="./gallery/Themes&ColorsScreen.png" width="300" /> | <img src="./gallery/TodoNotificationSystem.png" width="300" /> |
 
 ---
 
